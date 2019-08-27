@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <link href="/css/bootstrap.css" rel="stylesheet" />
+    <link href="/css/bootstrap-theme.css" rel="stylesheet" />
+    <link href="/css/site.css" rel="stylesheet" />
+    <script src="/js/jquery.js"></script>
+    <script src="/js/vue.js"></script>
+    <script src="/js/FastHttpApi.js"></script>
+    <script src="/js/Monitor.js"></script>
+    <script src="/js/bootstrap.js"></script>
+    <script src="/js/echarts.js"></script>
+    <script src="/js/HomeController.js"></script>
+    <title>Code Benchmark(https://github.com/ikende)</title>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
+                    <span class="sr-only">Code Benchmark</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a href="http://ikende.com/" target="_blank" class="navbar-brand">Code Benchmark</a>
+            </div>
+
+        </div>
+    </div>
+    <div id="main" class="container bs-docs-container" style="padding-top:60px;padding-bottom:50px;padding-left:40px;">
+        <div class="row">
+            <div class="col-md-3 col">
+                <p style="font-size:14pt;padding-top:10px;">
+                    <a href="https://github.com/ikende/CodeBenchmarkDoc" target="_blank">Examples & issues</a>
+                </p>
+
+                <ul class="Tree">
+                    <li v-for="item in Examples">
+                        <div class="TreeItem">
+                            <input type="checkbox" v-model:value="item.Selected" @change="categoryChange(item)" /> <img src="/images/module.png" />
+                            <span @click="item.Show=!item.Show;">{{item.Key}}({{item.Items.length}})</span>
+                        </div>
+                        <ul v-if="item.Show" class="Tree" style="padding-left:20px;">
+                            <li v-for="subitem in item.Items">
+                                <div class="TreeItem">
+                                    <input type="checkbox" v-model:value="subitem.Selected" />
+                                    <img src="/images/case.png" />
+
+                                    <span :title="subitem.Description" @click="subitem.Selected =!subitem.Selected"> {{subitem.Name}}</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </div>
+            <div class="col-md-9 col">
+
+                <ol class="breadcrumb"
+                    style="border-radius:0px; padding:4px;margin:2px;min-height:40px;padding-top:8px;padding-left:10px;background-color:#fff;border-bottom-width:2px;border-bottom-style:solid;border-bottom-color:#808080">
+                    <li style="background-color:#fff">
+                        <form class="navbar-form navbar-left breadcrumb form-group-sm" role="search" style="padding:0px;margin:0px;background-color:#fff">
+                            <div class="form-group form-group-sm">
+                                <span title="Concurrent">Concurrent:</span>
+                                <input title="Concurrent" @change="if(Concurrent>1000)Concurrent=1000;if(Concurrent<1)Concurrent=1;" type="number" class="form-control" v-model:value="Concurrent" style="width:100px;text-align:right">
+                                <span title="Run time seconds">Run times:</span>
+                                <input title="Run time seconds" @change="if(Seconds>1000)Seconds=1000;if(Seconds<1)Seconds=1;" type="number" class="form-control" v-model:value="Seconds" style="width:80px;text-align:right">
+                            </div>
+                            <button v-if="Info.Status!='Runing'" type="button" @click="start" class="btn btn-default btn-sm">Run</button>
+                            <button v-else type="button" class="btn btn-default btn-sm" @click="stop">Stop</button>
+
+                        </form>
+                    </li>
+
+
+                </ol>
+
+                <table class="table">
+
+                    <thead>
+                        <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
+                            <th style="border:none;width:18px"></th>
+                          
+                            <th style="border:none;padding:4px;">Name</th>
+                            <th style="border:none;padding:4px;">Performance</th>
+                            <th style="border:none;padding:4px;text-align:right;">Errors</th>
+                            <th style="border:none;padding:4px;text-align:right;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody style="cursor:pointer;">
+
+                        <tr v-for="(item,i) in Items" :style="{backgroundColor:getBorderStyle(item,i)}">
+                            <td style="width:18px;padding:0px;padding-left:4px;">
+                                <img style="padding:0px;margin:0px;" v-if="item.Status=='Runing'" src="images/runing.gif" />
+                                <img style="padding:0px;margin:0px;" v-else :src="['images/'+item.Status+'.png']" />
+                            </td>
+                           
+                            <td style="padding:2px;width:150px;" :title="item.Message">
+                                <a href="#"> {{item.Name}}</a>
+                            </td>
+                            <td style="padding:2px;">
+
+                                <span> {{item.Success}}</span>
+                                <span>(avg:{{item.AvgRps}}  max:{{item.MaxRps}})</span>
+
+                            </td>
+                            <td style="padding:2px;text-align:right;width:100px;"><span style="color:#ff6a00;"> {{item.Errors}}</span></td>
+                            <td style="padding:2px;text-align:right;width:100px;padding-right:4px;">
+                                <span v-if="item.Status !='Completed'">({{item.RunTime}}/{{item.Time}})</span>{{item.Status}}
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+               
+
+                <table class="table" :style="{display:ShowReport?'':'none'}">
+                    <caption><b> Total</b></caption>
+                    <tbody>
+                        <tr v-for="(item,i) in ReportData.total" :style="{backgroundColor:getBorderStyle(item,i)}">
+                            <td style="padding:2px;width:100px;border-color:#fff"> {{item.Name}}</td>
+                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
+                            <td style="padding:2px;border-color:#fff">
+                                <div class="bar-item" :style="{width:item.Percent+'%'}">
+                                 
+                                </div>
+                            </td>
+
+                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Percent}}%)</td>
+                        </tr>
+                     
+
+                    </tbody>
+                </table>
+                <table class="table" :style="{display:ShowReport?'':'none'}">
+                    <caption><b>RPS</b></caption>
+                    <tbody>
+                        <tr v-for="(item,i) in ReportData.rps" :style="{backgroundColor:getBorderStyle(item,i)}">
+                            <td style="padding:2px;width:100px;border-color:#fff"> {{item.Name}}</td>
+                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
+                            <td style="padding:2px;border-color:#fff">
+                                <div class="bar-item" :style="{width:item.Percent+'%'}">
+                                   
+                                </div>
+                            </td>
+
+                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Percent}}%)</td>
+                        </tr>
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <div class="navbar navbar-inverse navbar-fixed-bottom">
+        <div class="container" style="color:aliceblue;text-align:center;padding-top:10px;">
+            <p>Copyright © 2019 <a href="http://www.ikende.com" target="_blank">ikende.com</a> email:henryfan@msn.com <a href="https://github.com/ikende" target="_blank">Github</a></p>
+        </div>
+    </div>
+    <script>
+        var home = new Home();
+        var main = new Vue({
+            el: '#main',
+            data: {
+                Examples: [],
+                Concurrent: 10,
+                Seconds: 20,
+                Info: {},
+                Items: [],
+                Starting: false,
+                ShowReport: false,
+                ReportData: { total: [], rps: [] }
+            },
+            methods: {
+                getBorderStyle: function (item, i) {
+                    if (i % 2 == 1)
+                        return "#FCF4F4";
+                    else
+                        return "#F2F2F2";
+                    if (item.Status == 'Runing') {
+                        return "deepskyblue";
+                    }
+                    else if (item.Status == "Completed") {
+                        return "limegreen";
+                    }
+                    else if (item.Status == "Stop") {
+                        return "orange";
+                    }
+                    else if (item.Status == "Error") {
+                        return "orangered";
+                    }
+                    else if (item.Status == "Preparation") {
+                        return "aqua";
+                    }
+                    else if (item.Status == "None") {
+                        if (i % 2 == 1)
+                            return "gainsboro";
+                        else
+                            return "ghostwhite";
+                    }
+                },
+                getBackground: function (item, i) {
+
+                },
+                listExamples: function () {
+                    var _this = this;
+                    home.ListExamples().$(function (r) {
+                        _this.Examples = r.Data;
+                    });
+                },
+                categoryChange: function (item) {
+
+                    item.Items.forEach(function (t) {
+                        t.Selected = item.Selected;
+                    });
+                },
+                selectExamples: function () {
+                    var items = new Array();
+                    this.Examples.forEach(function (t) {
+                        t.Items.forEach(function (i) {
+                            if (i.Selected)
+                                items.push(i.ID);
+                        });
+                    });
+                    return items;
+                },
+                getStatus: function () {
+                    var _this = this;
+                    home.GetStatus().$(function (r) {
+                        _this.Info = r.Data;
+                        _this.Items = r.Data.Items;
+                        if (r.Data.Status == 'Completed' || r.Data.Status == 'Stop') {
+                            //if (_this.Starting) {
+                            //    _this.Starting = false;
+                                _this.ShowReport = true;
+                                home.Report().$(function (r) {
+                                    _this.ReportData = r.Data;
+                                });
+                            //}
+                        }
+                    });
+                },
+                start: function () {
+                    var items = this.selectExamples();
+                    var _this = this;
+                    if (items.length == 0) {
+
+                        alert('Select the examples to run!');
+                        return;
+                    }
+                    home.Run(this.Concurrent, this.Seconds, items).$(function (r) {
+                        _this.Starting = true;
+                        _this.ShowReport = false;
+                    });
+
+                },
+                stop: function () {
+                    home.Stop().$();
+                },
+            }
+        });
+        main.listExamples();
+        main.getStatus();
+        setInterval(function () {
+            main.getStatus();
+        }, 1000);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.5</Version>
+    <Authors>henryfan</Authors>
+    <Company>ikende.com</Company>
+    <Product>CodeBenchmark</Product>
+    <PackageProjectUrl>https://github.com/IKende/CodeBenchmarkDoc</PackageProjectUrl>
+    <Description>Unit code performance benchmark test component for netstandard 2.0</Description>
+    <Copyright>Copyright © ikende.com 2019 email:henryfan@msn.com</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="views\css\bootstrap-theme.css" />
+    <None Remove="views\css\bootstrap.css" />
+    <None Remove="views\css\site.css" />
+    <None Remove="views\images\case.png" />
+    <None Remove="views\images\completed.png" />
+    <None Remove="views\images\error.png" />
+    <None Remove="views\images\module.png" />
+    <None Remove="views\images\none.png" />
+    <None Remove="views\images\preparation.png" />
+    <None Remove="views\images\runing.gif" />
+    <None Remove="views\images\stop.png" />
+    <None Remove="views\index.html" />
+    <None Remove="views\js\bootstrap.js" />
+    <None Remove="views\js\echarts.js" />
+    <None Remove="views\js\FastHttpApi.js" />
+    <None Remove="views\js\HomeController.js" />
+    <None Remove="views\js\jquery.js" />
+    <None Remove="views\js\Monitor.js" />
+    <None Remove="views\js\vue.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="views\css\bootstrap-theme.css" />
+    <EmbeddedResource Include="views\css\bootstrap.css" />
+    <EmbeddedResource Include="views\css\site.css" />
+    <EmbeddedResource Include="views\images\case.png" />
+    <EmbeddedResource Include="views\images\completed.png" />
+    <EmbeddedResource Include="views\images\error.png" />
+    <EmbeddedResource Include="views\images\module.png" />
+    <EmbeddedResource Include="views\images\none.png" />
+    <EmbeddedResource Include="views\images\preparation.png" />
+    <EmbeddedResource Include="views\images\runing.gif" />
+    <EmbeddedResource Include="views\images\stop.png" />
+    <EmbeddedResource Include="views\index.html" />
+    <EmbeddedResource Include="views\js\bootstrap.js" />
+    <EmbeddedResource Include="views\js\echarts.js" />
+    <EmbeddedResource Include="views\js\FastHttpApi.js" />
+    <EmbeddedResource Include="views\js\HomeController.js" />
+    <EmbeddedResource Include="views\js\jquery.js" />
+    <EmbeddedResource Include="views\js\Monitor.js" />
+    <EmbeddedResource Include="views\js\vue.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BeetleX.FastHttpApi" Version="1.5.5.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="HomeController.cs">
+      <Generator>JSAPI</Generator>
+      <LastGenOutput>HomeController.js</LastGenOutput>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="HomeController.js">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>HomeController.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
+</Project>
