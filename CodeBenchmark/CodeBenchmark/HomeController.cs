@@ -36,26 +36,32 @@ namespace CodeBenchmark
 
         public object GetStatus()
         {
-            var examples = from a in benchmark.LoadRuner.Examples
-                           select new
-                           {
-                               a.ExampleInfo.Name,
-                               a.ExampleInfo.Description,
-                               a.ExampleInfo.Category,
-                               a.Exception?.Message,
-                               a.Time,
-                               a.RunTime,
-                               a.Success.MaxRps,
-                               a.Success.AvgRps,
-                               Errors = a.Error.Count,
-                               Success = a.Success.Count,
-                               Status = a.Status.ToString(),
+            var examples = (from a in benchmark.LoadRuner.Examples
+                            select new
+                            {
+                                a.ExampleInfo.ID,
+                                a.ExampleInfo.Name,
+                                a.ExampleInfo.Description,
+                                a.ExampleInfo.Category,
+                                a.Exception?.Message,
+                                a.Time,
+                                a.RunTime,
+                                a.Success.MaxRps,
+                                a.Success.AvgRps,
+                                Errors = a.Error.Count,
+                                Success = a.Success.Count,
+                                Status = a.Status.ToString(),
+                                TimePercent = a.Status == Status.Completed ? 100 : (int)(((double)a.RunTime / (double)a.Time) * 100),
+                            }).ToArray();
 
-
-                           };
-            return new { Status = benchmark.LoadRuner.Status.ToString(), Items = examples };
+            return new
+            {
+                Status = benchmark.LoadRuner.Status.ToString(),
+                Items = examples
+            };
         }
 
+        [Post]
         public void Run(int concurrent, int seconds, List<string> examples)
         {
             if (benchmark.LoadRuner.Status == Status.Runing)
@@ -69,22 +75,34 @@ namespace CodeBenchmark
             }
         }
 
+
+        public object GetLatency(string id)
+        {
+            return benchmark.LoadRuner.Examples.FirstOrDefault(e => e.ExampleInfo.ID == id)?.GetLatency();
+        }
+
         public object Report()
         {
-            var total = (from a in benchmark.LoadRuner.Examples orderby a.Success.Count descending
-                        select new ReportItem { Category=a.ExampleInfo.Category, Name=a.ExampleInfo.Name, Value= a.Success.Count }).ToArray();
-            var rps = (from a in benchmark.LoadRuner.Examples orderby a.Success.AvgRps descending
-                        select new ReportItem { Category = a.ExampleInfo.Category, Name = a.ExampleInfo.Name, Value = a.Success.AvgRps }).ToArray();
+            var total = (from a in benchmark.LoadRuner.Examples
+                         orderby a.Success.Count descending
+                         select new ReportItem { Category = a.ExampleInfo.Category, Name = a.ExampleInfo.Name, Value = a.Success.Count }).ToArray();
+            var rps = (from a in benchmark.LoadRuner.Examples
+                       orderby a.Success.AvgRps descending
+                       select new ReportItem { Category = a.ExampleInfo.Category, Name = a.ExampleInfo.Name, Value = a.Success.AvgRps }).ToArray();
             var totalMax = total.Max(m => m.Value);
 
             foreach (var item in total)
-                item.Percent = (int)(((double)item.Value / (double)totalMax) * 100);
-           
+                if (item.Value > 0 && totalMax > 0)
+                    item.Percent = (int)(((double)item.Value / (double)totalMax)*10000) / 100d;
+
 
             var rpsMax = rps.Max(m => m.Value);
 
             foreach (var item in rps)
-                item.Percent = (int)(((double)item.Value / (double)rpsMax) * 100);
+            {
+                if (item.Value > 0 && rpsMax > 0)
+                    item.Percent = (int)(((double)item.Value / (double)rpsMax)*10000) / 100d;
+            }
 
             return new { total, rps };
         }

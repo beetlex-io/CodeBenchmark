@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BeetleX;
@@ -33,6 +34,11 @@ namespace CodeBenchmark
 
         private Benchmark mBenchmark;
 
+
+        private StatisticsData mSuccessData;
+
+        private StatisticsData mErrorData;
+
         public Statistics Success => mSuccess;
 
         public Statistics Error => mError;
@@ -40,6 +46,16 @@ namespace CodeBenchmark
         public Exception Exception { get; set; }
 
         public Status Status { get; set; }
+
+
+        public object GetLatency()
+        {
+            if (mSuccessData == null)
+                return new object[0];
+            var result = from a in  mSuccessData?.GetTimeStats() where a.Count>0
+                         select new StatsBaseItem(a).PercentWith(Success.Count);
+            return result;
+        }
 
         public bool Initialize(Benchmark benchmark)
         {
@@ -76,7 +92,6 @@ namespace CodeBenchmark
 
         public void Completed()
         {
-
             Status = Status.Completed;
             mOnRuning = false;
             mBenchmark.AddLog(BeetleX.EventArgs.LogType.Info, $"{ExampleInfo.Example.Name} completed");
@@ -117,16 +132,13 @@ namespace CodeBenchmark
                     mBenchmark.AddLog(BeetleX.EventArgs.LogType.Error, $"{e_.Message}@{e_.StackTrace}");
                 }
             }
+            example.Dispose();
         }
 
         public void Stop()
         {
             if (Status == Status.Runing || Status == Status.None)
             {
-                foreach (var item in examples)
-                {
-                    item.Dispose();
-                }
                 Status = Status.Stop;
                 mOnRuning = false;
                 mBenchmark.AddLog(BeetleX.EventArgs.LogType.Warring, $"{ExampleInfo.Example.Name} stoped");
@@ -135,8 +147,8 @@ namespace CodeBenchmark
 
         public void RefreshStati()
         {
-            Success.GetData();
-            Error.GetData();
+           mSuccessData= Success.GetData();
+           mErrorData= Error.GetData();
         }
     }
 

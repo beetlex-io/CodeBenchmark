@@ -61,7 +61,11 @@ namespace CodeBenchmark
                 mFirstTime = TimeWatch.GetTotalSeconds();
                 mLastTime = mFirstTime;
             }
-            if (time <= 10)
+            if (time < 1)
+                System.Threading.Interlocked.Increment(ref ms1);
+            else if (time <= 5)
+                System.Threading.Interlocked.Increment(ref ms5);
+            else if (time <= 10)
                 System.Threading.Interlocked.Increment(ref ms10);
             else if (time <= 20)
                 System.Threading.Interlocked.Increment(ref ms20);
@@ -89,6 +93,18 @@ namespace CodeBenchmark
         {
             return mCount.ToString();
         }
+
+        private long ms1;
+
+        private long ms1LastCount;
+
+        public long Time1ms => ms1;
+
+        private long ms5;
+
+        private long ms5LastCount;
+
+        public long Time5ms => ms5;
 
         private long ms10;
 
@@ -167,6 +183,8 @@ namespace CodeBenchmark
             result.AvgRps = AvgRps;
 
             result.Name = Name;
+            result.Times.Add(Time1ms);
+            result.Times.Add(Time5ms);
             result.Times.Add(Time10ms);
             result.Times.Add(Time20ms);
             result.Times.Add(Time50ms);
@@ -181,7 +199,15 @@ namespace CodeBenchmark
             double now = TimeWatch.GetTotalSeconds();
             double time = now - mLastRpsTime;
 
-            int value = (int)((double)(ms10 - ms10LastCount) / time);
+            int value = (int)((double)(ms1 - ms1LastCount) / time);
+            ms1LastCount = ms1;
+            result.TimesRps.Add(value);
+
+            value = (int)((double)(ms5 - ms5LastCount) / time);
+            ms5LastCount = ms5;
+            result.TimesRps.Add(value);
+
+            value = (int)((double)(ms10 - ms10LastCount) / time);
             ms10LastCount = ms10;
             result.TimesRps.Add(value);
 
@@ -271,17 +297,19 @@ namespace CodeBenchmark
         public TimeStats[] GetTimeStats(int count = 20)
         {
             List<TimeStats> result = new List<TimeStats>();
-            result.Add(new TimeStats { EndTime = 10, Count = Times[0], Color = 0, Rps = TimesRps[0] });
-            result.Add(new TimeStats { EndTime = 20, StartTime = 10, Count = Times[1], Color = 1, Rps = TimesRps[1] });
-            result.Add(new TimeStats { EndTime = 50, StartTime = 20, Count = Times[2], Color = 2, Rps = TimesRps[2] });
-            result.Add(new TimeStats { EndTime = 100, StartTime = 50, Count = Times[3], Color = 3, Rps = TimesRps[3] });
-            result.Add(new TimeStats { EndTime = 200, StartTime = 100, Count = Times[4], Color = 4, Rps = TimesRps[4] });
-            result.Add(new TimeStats { EndTime = 500, StartTime = 200, Count = Times[5], Color = 5, Rps = TimesRps[5] });
-            result.Add(new TimeStats { EndTime = 1000, StartTime = 500, Count = Times[6], Color = 6, Rps = TimesRps[6] });
-            result.Add(new TimeStats { EndTime = 2000, StartTime = 1000, Count = Times[7], Color = 7, Rps = TimesRps[7] });
-            result.Add(new TimeStats { EndTime = 5000, StartTime = 2000, Count = Times[8], Color = 8, Rps = TimesRps[8] });
-            result.Add(new TimeStats { EndTime = 10000, StartTime = 5000, Count = Times[9], Color = 9, Rps = TimesRps[9] });
-            result.Add(new TimeStats { StartTime = 10000, Count = Times[10], Color = 10, Rps = TimesRps[10] });
+            result.Add(new TimeStats { EndTime = 1, Count = Times[0], Color = 0, Rps = TimesRps[0] });
+            result.Add(new TimeStats { EndTime = 5,StartTime=1, Count = Times[1], Color = 0, Rps = TimesRps[1] });
+            result.Add(new TimeStats { EndTime = 10, StartTime=5, Count = Times[2], Color = 0, Rps = TimesRps[2] });
+            result.Add(new TimeStats { EndTime = 20, StartTime = 10, Count = Times[3], Color = 1, Rps = TimesRps[3] });
+            result.Add(new TimeStats { EndTime = 50, StartTime = 20, Count = Times[4], Color = 2, Rps = TimesRps[4] });
+            result.Add(new TimeStats { EndTime = 100, StartTime = 50, Count = Times[5], Color = 3, Rps = TimesRps[5] });
+            result.Add(new TimeStats { EndTime = 200, StartTime = 100, Count = Times[6], Color = 4, Rps = TimesRps[6] });
+            result.Add(new TimeStats { EndTime = 500, StartTime = 200, Count = Times[7], Color = 5, Rps = TimesRps[7] });
+            result.Add(new TimeStats { EndTime = 1000, StartTime = 500, Count = Times[8], Color = 6, Rps = TimesRps[8] });
+            result.Add(new TimeStats { EndTime = 2000, StartTime = 1000, Count = Times[9], Color = 7, Rps = TimesRps[9] });
+            result.Add(new TimeStats { EndTime = 5000, StartTime = 2000, Count = Times[10], Color = 8, Rps = TimesRps[10] });
+            result.Add(new TimeStats { EndTime = 10000, StartTime = 5000, Count = Times[11], Color = 9, Rps = TimesRps[11] });
+            result.Add(new TimeStats { StartTime = 10000, Count = Times[12], Color = 10, Rps = TimesRps[12] });
             var items = (from a in result select a).Take(count).ToArray();
             return items;
         }
@@ -289,17 +317,19 @@ namespace CodeBenchmark
         public TimeStats[] GetTimeCountStats(int count = 20)
         {
             List<TimeStats> result = new List<TimeStats>();
-            result.Add(new TimeStats { EndTime = 10, Count = Times[0], Color = 0 });
-            result.Add(new TimeStats { EndTime = 20, StartTime = 10, Count = Times[1], Color = 1 });
-            result.Add(new TimeStats { EndTime = 50, StartTime = 20, Count = Times[2], Color = 2 });
-            result.Add(new TimeStats { EndTime = 100, StartTime = 50, Count = Times[3], Color = 3 });
-            result.Add(new TimeStats { EndTime = 200, StartTime = 100, Count = Times[4], Color = 4 });
-            result.Add(new TimeStats { EndTime = 500, StartTime = 200, Count = Times[5], Color = 5 });
-            result.Add(new TimeStats { EndTime = 1000, StartTime = 500, Count = Times[6], Color = 6 });
-            result.Add(new TimeStats { EndTime = 2000, StartTime = 1000, Count = Times[7], Color = 7 });
-            result.Add(new TimeStats { EndTime = 5000, StartTime = 2000, Count = Times[8], Color = 8 });
-            result.Add(new TimeStats { EndTime = 10000, StartTime = 5000, Count = Times[9], Color = 9 });
-            result.Add(new TimeStats { StartTime = 10000, Count = Times[10], Color = 10 });
+            result.Add(new TimeStats { EndTime = 1, Count = Times[0], Color = 0, Rps = TimesRps[0] });
+            result.Add(new TimeStats { EndTime = 5, StartTime = 1, Count = Times[1], Color = 0, Rps = TimesRps[1] });
+            result.Add(new TimeStats { EndTime = 10, StartTime = 5, Count = Times[2], Color = 0, Rps = TimesRps[2] });
+            result.Add(new TimeStats { EndTime = 20, StartTime = 10, Count = Times[3], Color = 1, Rps = TimesRps[3] });
+            result.Add(new TimeStats { EndTime = 50, StartTime = 20, Count = Times[4], Color = 2, Rps = TimesRps[4] });
+            result.Add(new TimeStats { EndTime = 100, StartTime = 50, Count = Times[5], Color = 3, Rps = TimesRps[5] });
+            result.Add(new TimeStats { EndTime = 200, StartTime = 100, Count = Times[6], Color = 4, Rps = TimesRps[6] });
+            result.Add(new TimeStats { EndTime = 500, StartTime = 200, Count = Times[7], Color = 5, Rps = TimesRps[7] });
+            result.Add(new TimeStats { EndTime = 1000, StartTime = 500, Count = Times[8], Color = 6, Rps = TimesRps[8] });
+            result.Add(new TimeStats { EndTime = 2000, StartTime = 1000, Count = Times[9], Color = 7, Rps = TimesRps[9] });
+            result.Add(new TimeStats { EndTime = 5000, StartTime = 2000, Count = Times[10], Color = 8, Rps = TimesRps[10] });
+            result.Add(new TimeStats { EndTime = 10000, StartTime = 5000, Count = Times[11], Color = 9, Rps = TimesRps[11] });
+            result.Add(new TimeStats { StartTime = 10000, Count = Times[12], Color = 10, Rps = TimesRps[12] });
             var items = (from a in result select a).Take(count).ToArray();
             return items;
         }
@@ -307,17 +337,19 @@ namespace CodeBenchmark
         public TimeStats[] GetTimeRpsStats(int count = 20)
         {
             List<TimeStats> result = new List<TimeStats>();
-            result.Add(new TimeStats { EndTime = 10, Count = TimesRps[0], Color = 0 });
-            result.Add(new TimeStats { EndTime = 20, StartTime = 10, Count = TimesRps[1], Color = 1 });
-            result.Add(new TimeStats { EndTime = 50, StartTime = 20, Count = TimesRps[2], Color = 2 });
-            result.Add(new TimeStats { EndTime = 100, StartTime = 50, Count = TimesRps[3], Color = 3 });
-            result.Add(new TimeStats { EndTime = 200, StartTime = 100, Count = TimesRps[4], Color = 4 });
-            result.Add(new TimeStats { EndTime = 500, StartTime = 200, Count = TimesRps[5], Color = 5 });
-            result.Add(new TimeStats { EndTime = 1000, StartTime = 500, Count = TimesRps[6], Color = 6 });
-            result.Add(new TimeStats { EndTime = 2000, StartTime = 1000, Count = TimesRps[7], Color = 7 });
-            result.Add(new TimeStats { EndTime = 5000, StartTime = 2000, Count = TimesRps[8], Color = 8 });
-            result.Add(new TimeStats { EndTime = 10000, StartTime = 5000, Count = TimesRps[9], Color = 9 });
-            result.Add(new TimeStats { StartTime = 5000, Count = TimesRps[10], Color = 10 });
+            result.Add(new TimeStats { EndTime = 1, Count = Times[0], Color = 0, Rps = TimesRps[0] });
+            result.Add(new TimeStats { EndTime = 5, StartTime = 1, Count = Times[1], Color = 0, Rps = TimesRps[1] });
+            result.Add(new TimeStats { EndTime = 10, StartTime = 5, Count = Times[2], Color = 0, Rps = TimesRps[2] });
+            result.Add(new TimeStats { EndTime = 20, StartTime = 10, Count = Times[3], Color = 1, Rps = TimesRps[3] });
+            result.Add(new TimeStats { EndTime = 50, StartTime = 20, Count = Times[4], Color = 2, Rps = TimesRps[4] });
+            result.Add(new TimeStats { EndTime = 100, StartTime = 50, Count = Times[5], Color = 3, Rps = TimesRps[5] });
+            result.Add(new TimeStats { EndTime = 200, StartTime = 100, Count = Times[6], Color = 4, Rps = TimesRps[6] });
+            result.Add(new TimeStats { EndTime = 500, StartTime = 200, Count = Times[7], Color = 5, Rps = TimesRps[7] });
+            result.Add(new TimeStats { EndTime = 1000, StartTime = 500, Count = Times[8], Color = 6, Rps = TimesRps[8] });
+            result.Add(new TimeStats { EndTime = 2000, StartTime = 1000, Count = Times[9], Color = 7, Rps = TimesRps[9] });
+            result.Add(new TimeStats { EndTime = 5000, StartTime = 2000, Count = Times[10], Color = 8, Rps = TimesRps[10] });
+            result.Add(new TimeStats { EndTime = 10000, StartTime = 5000, Count = Times[11], Color = 9, Rps = TimesRps[11] });
+            result.Add(new TimeStats { StartTime = 10000, Count = Times[12], Color = 10, Rps = TimesRps[12] });
             var items = (from a in result select a).Take(count).ToArray();
             return items;
         }
@@ -388,7 +420,7 @@ namespace CodeBenchmark
             double p = (double)value / (double)count;
             if (p > 0)
             {
-                percent = $"({(int)(p * 10000) / 100d}%)";
+                percent = $"{(int)(p * 10000) / 100d}%";
             }
             return this;
         }

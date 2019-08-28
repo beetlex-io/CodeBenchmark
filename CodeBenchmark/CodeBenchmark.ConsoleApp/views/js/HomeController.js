@@ -2,6 +2,7 @@ function Home() {
     this.url_ListExamples = '/ListExamples';
     this.url_GetStatus = '/GetStatus';
     this.url_Run = '/Run';
+    this.url_GetLatency = '/GetLatency';
     this.url_Report = '/Report';
     this.url_Stop = '/Stop';
 }
@@ -27,7 +28,15 @@ Home.prototype.GetStatus = function (useHttp) {
 * 'https://github.com/IKende/FastHttpApi
 **/
 Home.prototype.Run = function (concurrent, seconds, examples, useHttp) {
-    return api(this.url_Run, { concurrent: concurrent, seconds: seconds, examples: examples }, useHttp);
+    return api(this.url_Run, { concurrent: concurrent, seconds: seconds, examples: examples }, useHttp, true);
+}
+/**
+* 'GetLatency(params).execute(function(result){});'
+* 'FastHttpApi javascript api Generator Copyright © henryfan 2018 email:henryfan@msn.com
+* 'https://github.com/IKende/FastHttpApi
+**/
+Home.prototype.GetLatency = function (id, useHttp) {
+    return api(this.url_GetLatency, { id: id }, useHttp);
 }
 /**
 * 'Report(params).execute(function(result){});'

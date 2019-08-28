@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.5</Version>
+    <Version>0.7.2</Version>
     <Authors>henryfan</Authors>
     <Company>ikende.com</Company>
     <Product>CodeBenchmark</Product>
     <PackageProjectUrl>https://github.com/IKende/CodeBenchmarkDoc</PackageProjectUrl>
     <Description>Unit code performance benchmark test component for netstandard 2.0</Description>
     <Copyright>Copyright © ikende.com 2019 email:henryfan@msn.com</Copyright>
+    <PackageId>BeetleX.CodeBenchmark</PackageId>
   </PropertyGroup>
 
   <ItemGroup>

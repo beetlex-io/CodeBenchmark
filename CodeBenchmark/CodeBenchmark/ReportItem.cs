@@ -12,6 +12,6 @@ namespace CodeBenchmark
 
         public long Value { get; set; }
 
-        public int Percent { get; set; }
+        public double Percent { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace CodeBenchmark.ConsoleApp
 {
     [System.ComponentModel.Category("TCP")]
-    public class ReadLine : IExample
+    public class TextLine : IExample
     {
         public async Task Execute()
         {
@@ -21,6 +21,11 @@ namespace CodeBenchmark.ConsoleApp
         public void Initialize(Benchmark benchmark)
         {
             mClient = BeetleX.SocketFactory.CreateClient<BeetleX.Clients.AsyncTcpClient>("192.168.2.19", 9012);
+        }
+
+        public void Dispose()
+        {
+            mClient.DisConnect();
         }
     }
 }

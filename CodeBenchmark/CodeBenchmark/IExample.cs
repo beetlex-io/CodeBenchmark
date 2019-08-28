@@ -7,9 +7,7 @@ namespace CodeBenchmark
 {
     public interface IExample:IDisposable
     {
-
         void Initialize(Benchmark benchmark);
-
         Task Execute();
     }
 }

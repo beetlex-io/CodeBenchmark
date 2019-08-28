@@ -83,9 +83,10 @@
                     <thead>
                         <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
                             <th style="border:none;width:18px"></th>
-                          
+
                             <th style="border:none;padding:4px;">Name</th>
                             <th style="border:none;padding:4px;">Performance</th>
+                            <th style="border:none;padding:4px;"></th>
                             <th style="border:none;padding:4px;text-align:right;">Errors</th>
                             <th style="border:none;padding:4px;text-align:right;">Status</th>
                         </tr>
@@ -93,29 +94,60 @@
                     <tbody style="cursor:pointer;">
 
                         <tr v-for="(item,i) in Items" :style="{backgroundColor:getBorderStyle(item,i)}">
-                            <td style="width:18px;padding:0px;padding-left:4px;">
+                            <td style="width:18px;padding:0px;padding-left:4px;border-color:#fff" :title="item.Status">
                                 <img style="padding:0px;margin:0px;" v-if="item.Status=='Runing'" src="images/runing.gif" />
                                 <img style="padding:0px;margin:0px;" v-else :src="['images/'+item.Status+'.png']" />
                             </td>
-                           
-                            <td style="padding:2px;width:150px;" :title="item.Message">
-                                <a href="#"> {{item.Name}}</a>
-                            </td>
-                            <td style="padding:2px;">
 
-                                <span> {{item.Success}}</span>
+                            <td style="padding:2px;width:150px;border-color:#fff" :title="item.Message">
+                                <a href="javascript:void(0)" @click="onSelectItem(item)"> {{item.Name}}</a>
+                            </td>
+                            <td style="padding:2px;border-color:#fff;text-align:right;width:100px;">
+
+                                <span> {{item.Success}} |</span>
+
+
+                            </td>
+                            <td style="padding:2px;border-color:#fff">
+
+
                                 <span>(avg:{{item.AvgRps}}  max:{{item.MaxRps}})</span>
 
                             </td>
-                            <td style="padding:2px;text-align:right;width:100px;"><span style="color:#ff6a00;"> {{item.Errors}}</span></td>
-                            <td style="padding:2px;text-align:right;width:100px;padding-right:4px;">
-                                <span v-if="item.Status !='Completed'">({{item.RunTime}}/{{item.Time}})</span>{{item.Status}}
+                            <td style="padding:2px;text-align:right;width:100px;border-color:#fff"><span style="color:#ff6a00;"> {{item.Errors}}</span></td>
+                            <td style="padding:2px;width:100px;padding-right:4px;border-color:#fff">
+
+                                <div class="bar-item1" :style="{width:item.TimePercent+'%'}">
+                                    <span style="margin-left:10px; margin-top:-2px;position:absolute;font-size:10pt;">{{item.Status}}</span>
+                                </div>
+
+
                             </td>
                         </tr>
 
                     </tbody>
                 </table>
-               
+
+
+                <table class="table" :style="{display:(ShowReport&&SelectItem.Name)?'':'none'}">
+                    <caption><b> {{SelectItem.Name}} summary</b></caption>
+                    <tbody>
+                        <tr v-for="(item,i) in ItemSummary" :style="{backgroundColor:getBorderStyle(item,i)}">
+                            <td style="padding:2px;width:100px;border-color:#fff"> {{item.name}}</td>
+                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.value}}</td>
+                            <td style="padding:2px;border-color:#fff">
+                                <div class="bar-item2" :style="{width:item.percent}">
+
+                                </div>
+                            </td>
+
+                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.percent}})</td>
+                        </tr>
+
+
+                    </tbody>
+                </table>
+
 
                 <table class="table" :style="{display:ShowReport?'':'none'}">
                     <caption><b> Total</b></caption>
@@ -125,13 +157,13 @@
                             <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
                             <td style="padding:2px;border-color:#fff">
                                 <div class="bar-item" :style="{width:item.Percent+'%'}">
-                                 
+
                                 </div>
                             </td>
 
                             <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Percent}}%)</td>
                         </tr>
-                     
+
 
                     </tbody>
                 </table>
@@ -142,8 +174,8 @@
                             <td style="padding:2px;width:100px;border-color:#fff"> {{item.Name}}</td>
                             <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
                             <td style="padding:2px;border-color:#fff">
-                                <div class="bar-item" :style="{width:item.Percent+'%'}">
-                                   
+                                <div class="bar-itemrps" :style="{width:item.Percent+'%'}">
+
                                 </div>
                             </td>
 
@@ -163,6 +195,7 @@
         </div>
     </div>
     <script>
+        var _delayColors = ['#2B9B0C', '#20BC0F', '#36DB11', '#C2DD11', "#DB9E11", "#ED7C12", "#F25913", "#FF3F14", "#F71313", "#C91010", "#930000"];
         var home = new Home();
         var main = new Vue({
             el: '#main',
@@ -174,12 +207,14 @@
                 Items: [],
                 Starting: false,
                 ShowReport: false,
-                ReportData: { total: [], rps: [] }
+                ReportData: { total: [], rps: [] },
+                SelectItem: {},
+                ItemSummary: []
             },
             methods: {
                 getBorderStyle: function (item, i) {
                     if (i % 2 == 1)
-                        return "#FCF4F4";
+                        return "#FFFEF7";
                     else
                         return "#F2F2F2";
                     if (item.Status == 'Runing') {
@@ -237,17 +272,32 @@
                         if (r.Data.Status == 'Completed' || r.Data.Status == 'Stop') {
                             //if (_this.Starting) {
                             //    _this.Starting = false;
-                                _this.ShowReport = true;
-                                home.Report().$(function (r) {
-                                    _this.ReportData = r.Data;
-                                });
+                            _this.ShowReport = true;
+                            home.Report().$(function (r) {
+                                _this.ReportData = r.Data;
+                            });
                             //}
                         }
+                        else {
+                            _this.ShowReport = false;
+                        }
                     });
+                },
+                onSelectItem: function (item) {
+                    this.SelectItem = item;
+                    if (this.Info.Status == 'Completed' || this.Info.Status == 'Stop') {
+                        var _this = this;
+                        home.GetLatency(this.SelectItem.ID).$(function (r) {
+                          
+                            _this.ItemSummary = r.Data;
+                        });
+                    }
                 },
                 start: function () {
                     var items = this.selectExamples();
                     var _this = this;
+                    this.SelectItem = {};
+                    this.ItemSummary = [];
                     if (items.length == 0) {
 
                         alert('Select the examples to run!');

@@ -50,6 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BeetleX.Http.Clients" Version="0.8.8" />
     <PackageReference Include="Npgsql" Version="4.0.9" />
   </ItemGroup>
 

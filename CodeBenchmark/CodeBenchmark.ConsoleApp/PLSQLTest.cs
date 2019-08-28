@@ -66,6 +66,10 @@ namespace CodeBenchmark.ConsoleApp
 
             public int RandomNumber { get; set; }
         }
+        public void Dispose()
+        {
+
+        }
     }
 
     [System.ComponentModel.Category("SQL")]
@@ -106,7 +110,11 @@ namespace CodeBenchmark.ConsoleApp
             result.Sort();
         }
 
-      
+        public void Dispose()
+        {
+            
+        }
+
         public class FortuneDTO : IComparable<FortuneDTO>, IComparable
         {
             public int Id { get; set; }
