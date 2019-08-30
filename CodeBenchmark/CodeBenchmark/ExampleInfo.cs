@@ -23,7 +23,6 @@ namespace CodeBenchmark
         public IExample Create(Benchmark benchmark)
         {
             IExample result = (IExample)Activator.CreateInstance(Example);
-            result.Initialize(benchmark);
             return result;
         }
     }

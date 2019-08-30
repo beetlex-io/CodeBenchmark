@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.Diagnostics;
-
+using System.Collections.Concurrent;
 namespace CodeBenchmark
 {
 
@@ -18,6 +18,21 @@ namespace CodeBenchmark
             mHttpApiServer.Options.LogToConsole = true;
             mHttpApiServer.Options.WriteLog = true;
             LoadRuner = new LoadRuner(this);
+        }
+
+        private ConcurrentDictionary<string, object> mProperties = new ConcurrentDictionary<string, object>();
+
+        public object this[string name]
+        {
+            get
+            {
+                mProperties.TryGetValue(name, out object result);
+                return result;
+            }
+            set
+            {
+                mProperties[name] = value;
+            }
         }
 
         private List<ExampleInfo> mExamples = new List<ExampleInfo>();
@@ -69,7 +84,10 @@ namespace CodeBenchmark
             mHttpApiServer.Options.SetDebug();
             mHttpApiServer.Open();
         }
-
+        public bool EnabledLog(BeetleX.EventArgs.LogType type)
+        {
+            return mHttpApiServer.EnableLog(type);
+        }
         public void OpenWeb()
         {
             var ps = new ProcessStartInfo($"http://localhost:{Port}/")

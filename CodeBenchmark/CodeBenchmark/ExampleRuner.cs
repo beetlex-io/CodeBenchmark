@@ -34,7 +34,6 @@ namespace CodeBenchmark
 
         private Benchmark mBenchmark;
 
-
         private StatisticsData mSuccessData;
 
         private StatisticsData mErrorData;
@@ -65,6 +64,7 @@ namespace CodeBenchmark
                 for (int i = 0; i < mConcurrent; i++)
                 {
                     var item = ExampleInfo.Create(benchmark);
+                    item.Initialize(benchmark);
                     examples.Add(item);
                 }
                 benchmark.AddLog(BeetleX.EventArgs.LogType.Info, $"{ExampleInfo.Example.Name} initialize success");
@@ -72,7 +72,8 @@ namespace CodeBenchmark
             }
             catch (Exception e_)
             {
-                benchmark.AddLog(BeetleX.EventArgs.LogType.Error, $"{ExampleInfo.Example.Name} initialize error {e_.Message}@{e_.StackTrace}");
+                if(benchmark.EnabledLog(BeetleX.EventArgs.LogType.Error))
+                    benchmark.AddLog(BeetleX.EventArgs.LogType.Error, $"{ExampleInfo.Example.Name} initialize error {e_.Message}@{e_.StackTrace}");
                 Exception = e_;
                 Status = Status.Error;
                 return false;
@@ -109,7 +110,8 @@ namespace CodeBenchmark
                 }
                 catch (Exception e_)
                 {
-                    mBenchmark.AddLog(BeetleX.EventArgs.LogType.Error, $"{ExampleInfo.Example.Name} preparing error {e_.Message}@{e_.StackTrace}");
+                    if (mBenchmark.EnabledLog(BeetleX.EventArgs.LogType.Error))
+                        mBenchmark.AddLog(BeetleX.EventArgs.LogType.Error, $"{ExampleInfo.Example.Name} preparing error {e_.Message}@{e_.StackTrace}");
                     return;
                 }
             }

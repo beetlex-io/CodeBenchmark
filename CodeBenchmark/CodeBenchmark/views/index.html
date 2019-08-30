@@ -30,8 +30,12 @@
 
         </div>
     </div>
-    <div id="main" class="container bs-docs-container" style="padding-top:60px;padding-bottom:50px;padding-left:40px;">
-        <div class="row">
+   
+    <div id="main" class="container bs-docs-container" style="padding-top:60px;padding-bottom:50px;padding-left:40px;min-height:100%">
+        <div class="navbar navbar-inverse navbar-fixed-left" style="margin-left:-10px;">
+            
+        </div>
+        <div class="row" style="min-height:100%">
             <div class="col-md-3 col">
                 <p style="font-size:14pt;padding-top:10px;">
                     <a href="https://github.com/ikende/CodeBenchmarkDoc" target="_blank">Examples & issues</a>
@@ -91,7 +95,7 @@
                             <th style="border:none;padding:4px;text-align:right;">Status</th>
                         </tr>
                     </thead>
-                    <tbody style="cursor:pointer;">
+                    <tbody style="cursor:pointer;font-size:10pt;">
 
                         <tr v-for="(item,i) in Items" :style="{backgroundColor:getBorderStyle(item,i)}">
                             <td style="width:18px;padding:0px;padding-left:4px;border-color:#fff" :title="item.Status">
@@ -131,7 +135,7 @@
 
                 <table class="table" :style="{display:(ShowReport&&SelectItem.Name)?'':'none'}">
                     <caption><b> {{SelectItem.Name}} summary</b></caption>
-                    <tbody>
+                    <tbody style="font-size:10pt;">
                         <tr v-for="(item,i) in ItemSummary" :style="{backgroundColor:getBorderStyle(item,i)}">
                             <td style="padding:2px;width:100px;border-color:#fff"> {{item.name}}</td>
                             <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.value}}</td>
@@ -151,7 +155,7 @@
 
                 <table class="table" :style="{display:ShowReport?'':'none'}">
                     <caption><b> Total</b></caption>
-                    <tbody>
+                    <tbody style="font-size:10pt;">
                         <tr v-for="(item,i) in ReportData.total" :style="{backgroundColor:getBorderStyle(item,i)}">
                             <td style="padding:2px;width:100px;border-color:#fff"> {{item.Name}}</td>
                             <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
@@ -169,7 +173,7 @@
                 </table>
                 <table class="table" :style="{display:ShowReport?'':'none'}">
                     <caption><b>RPS</b></caption>
-                    <tbody>
+                    <tbody style="font-size:10pt;">
                         <tr v-for="(item,i) in ReportData.rps" :style="{backgroundColor:getBorderStyle(item,i)}">
                             <td style="padding:2px;width:100px;border-color:#fff"> {{item.Name}}</td>
                             <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
@@ -288,7 +292,7 @@
                     if (this.Info.Status == 'Completed' || this.Info.Status == 'Stop') {
                         var _this = this;
                         home.GetLatency(this.SelectItem.ID).$(function (r) {
-                          
+
                             _this.ItemSummary = r.Data;
                         });
                     }
