@@ -16,7 +16,7 @@ namespace CodeBenchmark
             mHttpApiServer = new BeetleX.FastHttpApi.HttpApiServer();
             mHttpApiServer.Options.LogLevel = BeetleX.EventArgs.LogType.Warring;
             mHttpApiServer.Options.LogToConsole = true;
-            mHttpApiServer.Options.WriteLog = true;
+            mHttpApiServer.Options.WriteLog = false;
             LoadRuner = new LoadRuner(this);
         }
 
@@ -83,6 +83,9 @@ namespace CodeBenchmark
             mHttpApiServer.Options.Port = port;
             mHttpApiServer.Options.SetDebug();
             mHttpApiServer.Open();
+            mHttpApiServer.Log(BeetleX.EventArgs.LogType.Info, $"Code benchmark version [{typeof(Benchmark).Assembly.GetName().Version}]");
+            mHttpApiServer.Log(BeetleX.EventArgs.LogType.Info, $"Open web browser access [http://localhost:{Port}/] benchmarking");
+            
         }
         public bool EnabledLog(BeetleX.EventArgs.LogType type)
         {

@@ -85,15 +85,15 @@ namespace CodeBenchmark
         {
             var total = (from a in benchmark.LoadRuner.Examples
                          orderby a.Success.Count descending
-                         select new ReportItem { Category = a.ExampleInfo.Category, Name = a.ExampleInfo.Name, Value = a.Success.Count }).ToArray();
+                         select new ReportItem { Category = a.ExampleInfo.Category, Name = a.ExampleInfo.Name, Value = a.Success.Count, ID = a.ExampleInfo.ID }).ToArray();
             var rps = (from a in benchmark.LoadRuner.Examples
                        orderby a.Success.AvgRps descending
-                       select new ReportItem { Category = a.ExampleInfo.Category, Name = a.ExampleInfo.Name, Value = a.Success.AvgRps }).ToArray();
+                       select new ReportItem { Category = a.ExampleInfo.Category, Name = a.ExampleInfo.Name, Value = a.Success.AvgRps, ID = a.ExampleInfo.ID }).ToArray();
             var totalMax = total.Max(m => m.Value);
 
             foreach (var item in total)
                 if (item.Value > 0 && totalMax > 0)
-                    item.Percent = (int)(((double)item.Value / (double)totalMax)*10000) / 100d;
+                    item.Percent = (int)(((double)item.Value / (double)totalMax) * 10000) / 100d;
 
 
             var rpsMax = rps.Max(m => m.Value);
@@ -101,10 +101,17 @@ namespace CodeBenchmark
             foreach (var item in rps)
             {
                 if (item.Value > 0 && rpsMax > 0)
-                    item.Percent = (int)(((double)item.Value / (double)rpsMax)*10000) / 100d;
+                    item.Percent = (int)(((double)item.Value / (double)rpsMax) * 10000) / 100d;
             }
 
-            return new { total, rps };
+            foreach (var item in total)
+                item.Rps = rps.FirstOrDefault(p => p.ID == item.ID);
+
+            var result = from a in total
+                         group a by a.Category into g
+                         select new { g.Key, Items = g.ToArray().OrderByDescending(p=>p.Value)};
+
+            return result;
         }
 
         public void Stop()

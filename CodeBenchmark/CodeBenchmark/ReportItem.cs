@@ -6,6 +6,8 @@ namespace CodeBenchmark
 {
     class ReportItem
     {
+        public string ID { get; set; }
+
         public string Name { get; set; }
 
         public string Category { get; set; }
@@ -13,5 +15,7 @@ namespace CodeBenchmark
         public long Value { get; set; }
 
         public double Percent { get; set; }
+
+        public ReportItem Rps { get; set; }
     }
 }

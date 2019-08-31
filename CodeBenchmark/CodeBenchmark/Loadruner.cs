@@ -27,6 +27,8 @@ namespace CodeBenchmark
 
         private int mSeconds;
 
+        private int mTimeCount;
+
         private Queue<ExampleRuner> mExamplesQueue = new Queue<ExampleRuner>();
 
         public void Start(int concurrent, int seconds, params ExampleInfo[] items)
@@ -59,7 +61,8 @@ namespace CodeBenchmark
                 mCurrent.Prepare();
                 mCurrent.Start();
                 mEndTime = DateTime.Now.AddSeconds(mSeconds);
-                mTimer = new System.Threading.Timer(OnTimer, null, 1000, 1000);
+                mTimeCount = 0;
+                mTimer = new System.Threading.Timer(OnTimer, null, 96, 96);
             }
             else
             {
@@ -76,22 +79,26 @@ namespace CodeBenchmark
 
         private void OnTimer(object state)
         {
-            if(DateTime.Now<mEndTime)
+            mTimeCount++;
+            if (mTimeCount > 0 && mTimeCount % 10 == 0)
             {
-                mCurrent.RefreshStati();
-                mCurrent.RunTime++;
-            }
-            else
-            {
-                mTimer.Dispose();
-                mCurrent.Completed();
-                if(mExamplesQueue.Count>0)
+                if (DateTime.Now < mEndTime)
                 {
-                    OnRunExample(mExamplesQueue.Dequeue());
+                    mCurrent.RefreshStati();
+                    mCurrent.RunTime++;
                 }
                 else
                 {
-                    Status = Status.Completed;
+                    mTimer.Dispose();
+                    mCurrent.Completed();
+                    if (mExamplesQueue.Count > 0)
+                    {
+                        OnRunExample(mExamplesQueue.Dequeue());
+                    }
+                    else
+                    {
+                        Status = Status.Completed;
+                    }
                 }
             }
         }

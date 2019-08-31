@@ -82,13 +82,15 @@
 
                 </ol>
 
+
+
                 <table class="table">
 
                     <thead>
                         <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
                             <th style="border:none;width:18px"></th>
 
-                            <th style="border:none;padding:4px;">Name</th>
+                            <th style="border:none;padding:4px;">Example</th>
                             <th style="border:none;padding:4px;">Performance</th>
                             <th style="border:none;padding:4px;"></th>
                             <th style="border:none;padding:4px;text-align:right;">Errors</th>
@@ -132,12 +134,12 @@
                     </tbody>
                 </table>
 
-
+                <hr :style="{display:(ShowReport)?'':'none'}" />
                 <table class="table" :style="{display:(ShowReport&&SelectItem.Name)?'':'none'}">
                     <caption><b> {{SelectItem.Name}} summary</b></caption>
                     <tbody style="font-size:10pt;">
                         <tr v-for="(item,i) in ItemSummary" :style="{backgroundColor:getBorderStyle(item,i)}">
-                            <td style="padding:2px;width:100px;border-color:#fff"> {{item.name}}</td>
+                            <td style="padding:2px;width:120px;border-color:#fff"> {{item.name}}</td>
                             <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.value}}</td>
                             <td style="padding:2px;border-color:#fff">
                                 <div class="bar-item2" :style="{width:item.percent}">
@@ -146,6 +148,8 @@
                             </td>
 
                             <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.percent}})</td>
+
+
                         </tr>
 
 
@@ -153,42 +157,49 @@
                 </table>
 
 
-                <table class="table" :style="{display:ShowReport?'':'none'}">
-                    <caption><b> Total</b></caption>
+
+                <table v-for="(g,i) in ReportData" class="table" :style="{display:ShowReport?'':'none',marginBottom:'6px'}">
+                    <caption style="padding:0px;color:#000"><b> {{g.Key}}</b></caption>
+                    <thead v-if="i==0">
+                        <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
+
+                            <th style="padding:2px;"></th>
+                            <th style="text-align:right;padding:2px;">Total</th>
+                            <th style="padding:2px;"></th>
+                            <th style="padding:2px;"></th>
+                            <th style="text-align:right;padding:2px;">RPS</th>
+                            <th style="padding:2px;"> </th>
+                            <th style="padding:2px;"></th>
+                        </tr>
+                    </thead>
                     <tbody style="font-size:10pt;">
-                        <tr v-for="(item,i) in ReportData.total" :style="{backgroundColor:getBorderStyle(item,i)}">
-                            <td style="padding:2px;width:100px;border-color:#fff"> {{item.Name}}</td>
+                        <tr v-for="(item,i) in g.Items" :style="{backgroundColor:getBorderStyle(item,i)}">
+                            <td style="padding:2px;width:120px;border-color:#fff;"> {{item.Name}}</td>
                             <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
                             <td style="padding:2px;border-color:#fff">
                                 <div class="bar-item" :style="{width:item.Percent+'%'}">
 
                                 </div>
                             </td>
-
                             <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Percent}}%)</td>
-                        </tr>
 
 
-                    </tbody>
-                </table>
-                <table class="table" :style="{display:ShowReport?'':'none'}">
-                    <caption><b>RPS</b></caption>
-                    <tbody style="font-size:10pt;">
-                        <tr v-for="(item,i) in ReportData.rps" :style="{backgroundColor:getBorderStyle(item,i)}">
-                            <td style="padding:2px;width:100px;border-color:#fff"> {{item.Name}}</td>
-                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
+                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Rps.Value}}</td>
                             <td style="padding:2px;border-color:#fff">
-                                <div class="bar-itemrps" :style="{width:item.Percent+'%'}">
+                                <div class="bar-itemrps" :style="{width:item.Rps.Percent+'%'}">
 
                                 </div>
                             </td>
 
-                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Percent}}%)</td>
+                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Rps.Percent}}%)</td>
                         </tr>
 
 
                     </tbody>
                 </table>
+
+
+
             </div>
         </div>
 
@@ -211,7 +222,7 @@
                 Items: [],
                 Starting: false,
                 ShowReport: false,
-                ReportData: { total: [], rps: [] },
+                ReportData: [],
                 SelectItem: {},
                 ItemSummary: []
             },
@@ -302,6 +313,7 @@
                     var _this = this;
                     this.SelectItem = {};
                     this.ItemSummary = [];
+                    this.ReportData = [];
                     if (items.length == 0) {
 
                         alert('Select the examples to run!');
