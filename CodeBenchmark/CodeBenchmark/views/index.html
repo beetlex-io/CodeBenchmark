@@ -31,7 +31,7 @@
         </div>
     </div>
    
-    <div id="main" class="container bs-docs-container" style="padding-top:60px;padding-bottom:50px;padding-left:40px;min-height:100%">
+    <div id="main" class="container bs-docs-container" style="padding-top:60px;padding-bottom:80px;padding-left:40px;min-height:100%">
         <div class="navbar navbar-inverse navbar-fixed-left" style="margin-left:-10px;">
             
         </div>
@@ -82,61 +82,66 @@
 
                 </ol>
 
+                <div>
+                    <table class="table">
+
+                        <thead>
+                            <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
+                                <th style="border:none;width:18px;padding:2px;">
+                                    <img v-if="!ShowItem && Items.length>3" src="images/large.png" @click="ShowItem=true" style="cursor:pointer" />
+                                    <img v-if="ShowItem && Items.length>3" src="images/small.png" @click="ShowItem=false" style="cursor:pointer" />
+                                </th>
+
+                                <th style="border:none;padding:4px;">Example</th>
+                                <th style="border:none;padding:4px;">Performance</th>
+                                <th style="border:none;padding:4px;"></th>
+                                <th style="border:none;padding:4px;text-align:right;">Errors</th>
+                                <th style="border:none;padding:4px;text-align:right;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody style="cursor:pointer;font-size:10pt;">
+
+                            <tr v-for="(item,i) in Items" :style="{backgroundColor:getBorderStyle(item,i),display:(ShowItem||i<3)?'':'none'}">
+                                <td style="width:18px;padding:0px;padding-left:4px;border-color:#fff" :title="item.Status">
+                                    <img style="padding:0px;margin:0px;" v-if="item.Status=='Runing'" src="images/runing.gif" />
+                                    <img style="padding:0px;margin:0px;" v-else :src="['images/'+item.Status+'.png']" />
+                                </td>
+
+                                <td style="padding:2px;width:150px;border-color:#fff" :title="item.Message">
+                                    <a href="javascript:void(0)" @click="onSelectItem(item)"> {{item.Name}}</a>
+                                </td>
+                                <td style="padding:2px;border-color:#fff;text-align:right;width:100px;">
+
+                                    <span> {{item.Success}} |</span>
 
 
-                <table class="table">
-
-                    <thead>
-                        <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
-                            <th style="border:none;width:18px"></th>
-
-                            <th style="border:none;padding:4px;">Example</th>
-                            <th style="border:none;padding:4px;">Performance</th>
-                            <th style="border:none;padding:4px;"></th>
-                            <th style="border:none;padding:4px;text-align:right;">Errors</th>
-                            <th style="border:none;padding:4px;text-align:right;">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody style="cursor:pointer;font-size:10pt;">
-
-                        <tr v-for="(item,i) in Items" :style="{backgroundColor:getBorderStyle(item,i)}">
-                            <td style="width:18px;padding:0px;padding-left:4px;border-color:#fff" :title="item.Status">
-                                <img style="padding:0px;margin:0px;" v-if="item.Status=='Runing'" src="images/runing.gif" />
-                                <img style="padding:0px;margin:0px;" v-else :src="['images/'+item.Status+'.png']" />
-                            </td>
-
-                            <td style="padding:2px;width:150px;border-color:#fff" :title="item.Message">
-                                <a href="javascript:void(0)" @click="onSelectItem(item)"> {{item.Name}}</a>
-                            </td>
-                            <td style="padding:2px;border-color:#fff;text-align:right;width:100px;">
-
-                                <span> {{item.Success}} |</span>
+                                </td>
+                                <td style="padding:2px;border-color:#fff">
 
 
-                            </td>
-                            <td style="padding:2px;border-color:#fff">
+                                    <span>(avg:{{item.AvgRps}}  max:{{item.MaxRps}})</span>
+
+                                </td>
+                                <td style="padding:2px;text-align:right;width:100px;border-color:#fff"><span style="color:#ff6a00;"> {{item.Errors}}</span></td>
+                                <td style="padding:2px;width:100px;padding-right:4px;border-color:#fff">
+
+                                    <div class="bar-item1" :style="{width:item.TimePercent+'%'}">
+                                        <span style="margin-left:10px; margin-top:-2px;position:absolute;font-size:10pt;">{{item.Status}}</span>
+                                    </div>
 
 
-                                <span>(avg:{{item.AvgRps}}  max:{{item.MaxRps}})</span>
+                                </td>
+                            </tr>
 
-                            </td>
-                            <td style="padding:2px;text-align:right;width:100px;border-color:#fff"><span style="color:#ff6a00;"> {{item.Errors}}</span></td>
-                            <td style="padding:2px;width:100px;padding-right:4px;border-color:#fff">
+                        </tbody>
+                    </table>
+                    <div v-if="!ShowItem" class="closeDiv">
 
-                                <div class="bar-item1" :style="{width:item.TimePercent+'%'}">
-                                    <span style="margin-left:10px; margin-top:-2px;position:absolute;font-size:10pt;">{{item.Status}}</span>
-                                </div>
-
-
-                            </td>
-                        </tr>
-
-                    </tbody>
-                </table>
-
-                <hr :style="{display:(ShowReport)?'':'none'}" />
+                    </div>
+                </div>
+              
                 <table class="table" :style="{display:(ShowReport&&SelectItem.Name)?'':'none'}">
-                    <caption><b> {{SelectItem.Name}} summary</b></caption>
+                    <caption style="color:#000"><b> {{SelectItem.Name}} delay summary</b></caption>
                     <tbody style="font-size:10pt;">
                         <tr v-for="(item,i) in ItemSummary" :style="{backgroundColor:getBorderStyle(item,i)}">
                             <td style="padding:2px;width:120px;border-color:#fff"> {{item.name}}</td>
@@ -159,39 +164,40 @@
 
 
                 <table v-for="(g,i) in ReportData" class="table" :style="{display:ShowReport?'':'none',marginBottom:'6px'}">
-                    <caption style="padding:0px;color:#000"><b> {{g.Key}}</b></caption>
+                    
                     <thead v-if="i==0">
                         <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
-
-                            <th style="padding:2px;"></th>
-                            <th style="text-align:right;padding:2px;">Total</th>
-                            <th style="padding:2px;"></th>
-                            <th style="padding:2px;"></th>
-                            <th style="text-align:right;padding:2px;">RPS</th>
-                            <th style="padding:2px;"> </th>
-                            <th style="padding:2px;"></th>
+                            <th style="padding:2px;border:none;"></th>
+                            <th style="padding:2px;border:none;"></th>
+                            <th style="text-align:right;padding:2px;border:none;">Total</th>
+                            <th style="padding:2px;border:none;"></th>
+                            <th style="padding:2px;border:none;"></th>
+                            <th style="text-align:right;padding:2px;border:none;">RPS</th>
+                            <th style="padding:2px;border:none;"> </th>
+                            <th style="padding:2px;border:none;"></th>
                         </tr>
                     </thead>
-                    <tbody style="font-size:10pt;">
-                        <tr v-for="(item,i) in g.Items" :style="{backgroundColor:getBorderStyle(item,i)}">
-                            <td style="padding:2px;width:120px;border-color:#fff;"> {{item.Name}}</td>
-                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Value}}</td>
-                            <td style="padding:2px;border-color:#fff">
-                                <div class="bar-item" :style="{width:item.Percent+'%'}">
+                    <tbody style="font-size:10pt;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#ddd;padding:1px;">
+                        <tr v-for="(item,i) in g.Items">
+                            <td v-if="i==0" :rowspan="g.Items.length" :style="{width:'10px',verticalAlign:'middle',backgroundColor:getBorderStyle(item,i)}"></td>
+                            <td style="padding:2px;width:120px;"> {{item.Name}}</td>
+                            <td style="padding:2px;width:100px;text-align:right;">{{item.Value}}</td>
+                            <td style="padding:2px;">
+                                <div class="bar-itemrps" :style="{width:item.Percent+'%'}">
 
                                 </div>
                             </td>
-                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Percent}}%)</td>
+                            <td style="padding:2px;width:80px;text-align:right;">({{item.Percent}}%)</td>
 
 
-                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.Rps.Value}}</td>
-                            <td style="padding:2px;border-color:#fff">
-                                <div class="bar-itemrps" :style="{width:item.Rps.Percent+'%'}">
+                            <td style="padding:2px;width:100px;text-align:right;">{{item.Rps.Value}}</td>
+                            <td style="padding:2px;">
+                                <div class="bar-item" :style="{width:item.Rps.Percent+'%'}">
 
                                 </div>
                             </td>
 
-                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.Rps.Percent}}%)</td>
+                            <td style="padding:2px;width:80px;text-align:right;">({{item.Rps.Percent}}%)</td>
                         </tr>
 
 
@@ -224,7 +230,8 @@
                 ShowReport: false,
                 ReportData: [],
                 SelectItem: {},
-                ItemSummary: []
+                ItemSummary: [],
+                ShowItem: true
             },
             methods: {
                 getBorderStyle: function (item, i) {
@@ -311,6 +318,7 @@
                 start: function () {
                     var items = this.selectExamples();
                     var _this = this;
+                    this.ShowItem = true;
                     this.SelectItem = {};
                     this.ItemSummary = [];
                     this.ReportData = [];

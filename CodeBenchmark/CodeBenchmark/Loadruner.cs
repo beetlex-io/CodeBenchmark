@@ -54,7 +54,8 @@ namespace CodeBenchmark
 
 
         private void OnRunExample(ExampleRuner example)
-        {         
+        {
+            System.Threading.Thread.Sleep(1000);
             mCurrent = example;
             if (mCurrent.Initialize(mBenchmark))
             {
