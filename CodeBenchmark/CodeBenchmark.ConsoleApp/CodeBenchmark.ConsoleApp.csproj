@@ -12,6 +12,7 @@
     <None Remove="views\favicon.ico" />
     <None Remove="views\images\add.png" />
     <None Remove="views\images\case.png" />
+    <None Remove="views\images\clear.png" />
     <None Remove="views\images\completed.png" />
     <None Remove="views\images\del.png" />
     <None Remove="views\images\down.png" />
@@ -21,6 +22,7 @@
     <None Remove="views\images\none.png" />
     <None Remove="views\images\preparation.png" />
     <None Remove="views\images\runing.gif" />
+    <None Remove="views\images\save.png" />
     <None Remove="views\images\small.png" />
     <None Remove="views\images\start_test.png" />
     <None Remove="views\images\stop.png" />
@@ -31,6 +33,7 @@
     <None Remove="views\js\echarts.js" />
     <None Remove="views\js\FastHttpApi.js" />
     <None Remove="views\js\HomeController.js" />
+    <None Remove="views\js\html2canvas.js" />
     <None Remove="views\js\jquery.js" />
     <None Remove="views\js\Monitor.js" />
     <None Remove="views\js\vue.js" />
@@ -43,6 +46,7 @@
     <EmbeddedResource Include="views\favicon.ico" />
     <EmbeddedResource Include="views\images\add.png" />
     <EmbeddedResource Include="views\images\case.png" />
+    <EmbeddedResource Include="views\images\clear.png" />
     <EmbeddedResource Include="views\images\completed.png" />
     <EmbeddedResource Include="views\images\del.png" />
     <EmbeddedResource Include="views\images\down.png" />
@@ -52,6 +56,7 @@
     <EmbeddedResource Include="views\images\none.png" />
     <EmbeddedResource Include="views\images\preparation.png" />
     <EmbeddedResource Include="views\images\runing.gif" />
+    <EmbeddedResource Include="views\images\save.png" />
     <EmbeddedResource Include="views\images\small.png" />
     <EmbeddedResource Include="views\images\start_test.png" />
     <EmbeddedResource Include="views\images\stop.png" />
@@ -62,6 +67,7 @@
     <EmbeddedResource Include="views\js\echarts.js" />
     <EmbeddedResource Include="views\js\FastHttpApi.js" />
     <EmbeddedResource Include="views\js\HomeController.js" />
+    <EmbeddedResource Include="views\js\html2canvas.js" />
     <EmbeddedResource Include="views\js\jquery.js" />
     <EmbeddedResource Include="views\js\Monitor.js" />
     <EmbeddedResource Include="views\js\vue.js" />

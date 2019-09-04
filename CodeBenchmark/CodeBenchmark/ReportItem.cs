@@ -14,6 +14,8 @@ namespace CodeBenchmark
 
         public long Value { get; set; }
 
+        public  long Error { get; set; }
+
         public double Percent { get; set; }
 
         public ReportItem Rps { get; set; }

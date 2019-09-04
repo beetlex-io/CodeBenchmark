@@ -170,3 +170,81 @@ body {
     background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 82%,rgba(255,255,255,1) 100%);
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 );
 }
+.round-title {
+    font-weight: bold;
+    padding: 4px;
+    background: rgb(226,226,226);
+    background: -moz-linear-gradient(45deg, rgba(226,226,226,1) 0%, rgba(255,255,255,1) 37%);
+    background: -webkit-linear-gradient(45deg, rgba(226,226,226,1) 0%,rgba(255,255,255,1) 37%);
+    background: linear-gradient(45deg, rgba(226,226,226,1) 0%,rgba(255,255,255,1) 37%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e2e2e2', endColorstr='#ffffff',GradientType=1 );
+   
+}
+.main-panel {
+    padding: 10px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(226,226,226);
+    border-top: none;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+.round-list {
+    list-style: none;
+    bottom: 0px;
+    padding: 0px;
+  
+}
+.round-table {
+    box-shadow: 1px 1px 2px rgb(226,226,226);
+    border-radius: 4px;
+    padding: 4px;
+    margin-bottom: 10px;
+    border-style:solid;
+    border-color:rgb(226,226,226);
+    border-width:1px;
+
+}
+.more-bar {
+    width: 100%;
+    height: 80px;
+    margin-top: -80px;
+    background: -moz-linear-gradient(top, rgba(255,255,255,0) 23%, rgba(255,255,255,0.01) 24%, rgba(255,255,255,1) 97%, rgba(255,255,255,1) 98%);
+    background: -webkit-linear-gradient(top, rgba(255,255,255,0) 23%,rgba(255,255,255,0.01) 24%,rgba(255,255,255,1) 97%,rgba(255,255,255,1) 98%);
+    background: linear-gradient(to bottom, rgba(255,255,255,0) 23%,rgba(255,255,255,0.01) 24%,rgba(255,255,255,1) 97%,rgba(255,255,255,1) 98%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 );
+    position: relative;
+    z-index: 500;
+    text-align: center;
+    vertical-align: bottom;
+    cursor: pointer;
+}
+.report-td{
+
+}
+.report-th {
+    padding:2px;
+}
+.table > thead > tr > th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #ddd;
+    padding:2px;
+}
+.table > tbody > tr > td {
+    padding: 2px;
+    font-size:10pt;
+}
+.tool-bar {
+}
+    .tool-bar a {
+        padding:2px;
+        border-radius:4px;
+    }
+        .tool-bar a:hover {
+            padding: 2px;
+            box-shadow: 1px 1px 2px #b4b4b4;
+        }
+.rps-value {
+    color: white;
+    text-shadow: 0px 0px 4px #313131;
+}

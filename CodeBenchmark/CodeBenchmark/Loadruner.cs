@@ -15,105 +15,72 @@ namespace CodeBenchmark
 
         private Benchmark mBenchmark;
 
-        public IList<ExampleRuner> Examples { get; private set; } = new List<ExampleRuner>();
+        private ExampleInfo[] mExampleInfos;
 
         public Status Status { get; set; }
 
-        private DateTime? mEndTime;
+        private int CurrentIndex { get; set; }
 
-        private System.Threading.Timer mTimer;
+        private RoundRuner mCurrentRound;
 
-        private ExampleRuner mCurrent;
+        public List<Round> RoundCases { get; set; } = new List<Round>();
 
-        private int mSeconds;
+        public ExampleInfo[] ExampleInfos => mExampleInfos;
 
-        private int mTimeCount;
+        public RoundRuner CurrentRound => mCurrentRound;
 
-        private Queue<ExampleRuner> mExamplesQueue = new Queue<ExampleRuner>();
+        public List<RoundRuner> Rounds { get; private set; } = new List<RoundRuner>();
 
-        public void Start(int concurrent, int seconds, params ExampleInfo[] items)
+        public void Start(List<Round> rounds, params ExampleInfo[] items)
         {
-            if (mTimer != null)
-                mTimer.Dispose();
-            foreach (var item in Examples)
+            mExampleInfos = items;
+            CurrentIndex = 0;
+            foreach (var item in Rounds)
                 item.Stop();
-            Examples.Clear();
-            mExamplesQueue.Clear();
-            Status = Status.Runing;
-            mSeconds = seconds;
-            foreach(var item in items)
+            Rounds.Clear();
+            int i = 1;
+            foreach (var r in rounds)
             {
-                var runer = new ExampleRuner(item, concurrent, mBenchmark);
-                runer.Time = seconds;
-                mExamplesQueue.Enqueue(runer);
-                Examples.Add(runer);
-            }     
-            Task.Run(()=> OnRunExample(mExamplesQueue.Dequeue()));
-            
+                RoundRuner roundRuner = new RoundRuner();
+                roundRuner.Index = i;
+                roundRuner.ID = r.ID;
+                roundRuner.Completed = OnRoundCompleted;
+                roundRuner.Seconds = r.Seconds;
+                roundRuner.Concurrent = r.Concurrent;
+                Rounds.Add(roundRuner);
+                i++;
+            }
+            Task.Run(() => OnRun());
+            Status = Status.Runing;
         }
 
-
-        private void OnRunExample(ExampleRuner example)
+        private void OnRun()
         {
-            System.Threading.Thread.Sleep(1000);
-            mCurrent = example;
-            if (mCurrent.Initialize(mBenchmark))
+
+            mCurrentRound = Rounds[CurrentIndex];
+           
+            mCurrentRound.Start(mBenchmark, mExampleInfos);
+        }
+
+        private void OnRoundCompleted(RoundRuner e)
+        {
+            CurrentIndex++;
+            if(CurrentIndex >= Rounds.Count)
             {
-                mCurrent.Prepare();
-                mCurrent.Start();
-                mEndTime = DateTime.Now.AddSeconds(mSeconds);
-                mTimeCount = 0;
-                mTimer = new System.Threading.Timer(OnTimer, null, 96, 96);
+                Status = Status.Completed;
             }
             else
             {
-                if (mExamplesQueue.Count > 0)
-                {
-                    OnRunExample(mExamplesQueue.Dequeue());
-                }
-                else
-                {
-                    Status = Status.Completed;
-                }
-            }
-        }
-
-        private void OnTimer(object state)
-        {
-            mTimeCount++;
-            if (mTimeCount > 0 && mTimeCount % 10 == 0)
-            {
-                if (DateTime.Now < mEndTime)
-                {
-                    mCurrent.RefreshStati();
-                    mCurrent.RunTime++;
-                }
-                else
-                {
-                    mTimer.Dispose();
-                    mCurrent.Completed();
-                    if (mExamplesQueue.Count > 0)
-                    {
-                        OnRunExample(mExamplesQueue.Dequeue());
-                    }
-                    else
-                    {
-                        Status = Status.Completed;
-                    }
-                }
+                System.Threading.Thread.Sleep(1000);
+                OnRun();
             }
         }
 
         public void Stop()
         {
             Status = Status.Stop;
-            foreach (var item in Examples)
+            foreach (var item in Rounds)
                 item.Stop();
-            if (mTimer != null)
-            {
-                mTimer.Dispose();
-                mTimer = null;
-            }
         }
     }
 }

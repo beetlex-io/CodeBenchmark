@@ -25,15 +25,15 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a href="http://ikende.com/" target="_blank" class="navbar-brand">Code Benchmark</a>
+                <a href="https://github.com/ikende" target="_blank" class="navbar-brand">Code Benchmark <small>V1.0</small> </a>
             </div>
 
         </div>
     </div>
-   
+
     <div id="main" class="container bs-docs-container" style="padding-top:60px;padding-bottom:80px;padding-left:40px;min-height:100%">
         <div class="navbar navbar-inverse navbar-fixed-left" style="margin-left:-10px;">
-            
+
         </div>
         <div class="row" style="min-height:100%">
             <div class="col-md-3 col">
@@ -64,145 +64,230 @@
             <div class="col-md-9 col">
 
                 <ol class="breadcrumb"
-                    style="border-radius:0px; padding:4px;margin:2px;min-height:40px;padding-top:8px;padding-left:10px;background-color:#fff;border-bottom-width:2px;border-bottom-style:solid;border-bottom-color:#808080">
+                    style="border-radius:0px; padding:4px;margin:4px;min-height:40px;padding-top:8px;padding-left:10px;background-color:#fff;">
                     <li style="background-color:#fff">
                         <form class="navbar-form navbar-left breadcrumb form-group-sm" role="search" style="padding:0px;margin:0px;background-color:#fff">
                             <div class="form-group form-group-sm">
-                                <span title="Concurrent">Concurrent:</span>
+                                <span title="Concurrent" style="font-weight:bold">Concurrent:</span>
                                 <input title="Concurrent" @change="if(Concurrent>1000)Concurrent=1000;if(Concurrent<1)Concurrent=1;" type="number" class="form-control" v-model:value="Concurrent" style="width:100px;text-align:right">
-                                <span title="Run time seconds">Run times:</span>
+                                <span title="Run time seconds" style="font-weight:bold">Times:</span>
                                 <input title="Run time seconds" @change="if(Seconds>1000)Seconds=1000;if(Seconds<1)Seconds=1;" type="number" class="form-control" v-model:value="Seconds" style="width:80px;text-align:right">
                             </div>
-                            <button v-if="Info.Status!='Runing'" type="button" @click="start" class="btn btn-default btn-sm">Run</button>
-                            <button v-else type="button" class="btn btn-default btn-sm" @click="stop">Stop</button>
+                            <button v-if="Info.Status!='Runing'" style="padding:4px;" @click="onAddConcurrentCase" title="add concurrent case" type="button" class="btn btn-default btn-sm">
+                                <img style="width:16px;" src="images/add.png" />
+                            </button>
+                            <button v-if="Info.Status!='Runing' && Rounds.length>0" style="padding:4px;" @click="onClearCase" title="clear concurrent case" type="button" class="btn btn-default btn-sm">
+                                <img style="width:16px;" src="images/clear.png" />
+                            </button>
+
+
+                            <button v-if="Info.Status!='Runing'" style="padding:4px;" type="button" @click="start" title="benchmarking" class="btn btn-default btn-sm">
+
+                                <img style="width:16px;" src="images/start_test.png" />
+                            </button>
+                            <button v-else type="button" class="btn btn-default btn-sm" @click="stop" title="stop" style="padding:4px;">
+                                <img style="width:16px;" src="images/stop_test.png" />
+                            </button>
+
 
                         </form>
                     </li>
 
 
                 </ol>
+                <ul class="nav nav-tabs">
+                    <li role="presentation" :class="[SelectTab=='Test'?'active':'']" >
+                    
+                    <a href="javascript:void(0)" style="padding:4px;padding-left:10px;padding-right:10px;" @click="SelectTab='Test'">Test</a>
+                    </li>
+                    <li v-if="(Info.Status=='Completed' || Info.Status=='Stop') && Rounds.length>0" role="presentation" :class="[SelectTab=='Report'?'active':'']">
+                    <a href="javascript:void(0)" style="padding:4px;padding-left:10px;padding-right:10px;" @click="onReport">RPS table</a>
+                    </li>
+                </ul>
+                <div class="main-panel">
+                    <div v-if="SelectTab=='Report'">
 
-                <div>
-                    <table class="table">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th class="report-th" style="width:10px;">
 
-                        <thead>
-                            <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
-                                <th style="border:none;width:18px;padding:2px;">
-                                    <img v-if="!ShowItem && Items.length>3" src="images/large.png" @click="ShowItem=true" style="cursor:pointer" />
-                                    <img v-if="ShowItem && Items.length>3" src="images/small.png" @click="ShowItem=false" style="cursor:pointer" />
-                                </th>
+                                    </th>
+                                    <th class="report-th">
+                                        Name
+                                    </th>
+                                    <th class="report-th" style="text-align:right"></th>
+                                    <th class="report-th" v-for="item in Report.Times" style="text-align:right">
+                                        {{item}}
+                                    </th>
+                                    <th class="report-th" style="text-align:right">Best</th>
+                                    <th class="report-th" style="text-align:right">Errors</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(item,i) in Report.Items" :style="{backgroundColor:(item.Name?getBorderStyle(item,i):'#fff')}">
+                                    <td v-if="!item.Name" :colspan="5+Report.Times.length">
+                                        <b> {{item.Category}}</b>
+                                    </td>
+                                    <td v-if="item.Name" style="width:10px;"></td>
 
-                                <th style="border:none;padding:4px;">Example</th>
-                                <th style="border:none;padding:4px;">Performance</th>
-                                <th style="border:none;padding:4px;"></th>
-                                <th style="border:none;padding:4px;text-align:right;">Errors</th>
-                                <th style="border:none;padding:4px;text-align:right;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody style="cursor:pointer;font-size:10pt;">
+                                    <td v-if="item.Name" style="width:150px;">
+                                        {{item.Name}}
+                                    </td>
+                                    <td v-if="item.Name">
 
-                            <tr v-for="(item,i) in Items" :style="{backgroundColor:getBorderStyle(item,i),display:(ShowItem||i<3)?'':'none'}">
-                                <td style="width:18px;padding:0px;padding-left:4px;border-color:#fff" :title="item.Status">
-                                    <img style="padding:0px;margin:0px;" v-if="item.Status=='Runing'" src="images/runing.gif" />
-                                    <img style="padding:0px;margin:0px;" v-else :src="['images/'+item.Status+'.png']" />
-                                </td>
+                                        <div class="bar-item" :style="{width:item.Percent+'%',padding:'2px;',display:'grid',textAlign:'right'}">
+                                            <span class="rps-value" style="margin-left:10px; margin-top:-2px;font-size:10pt;float:right;">{{item.Percent}}%</span>
+                                        </div>
+                                    </td>
+                                    <td v-for="sitem in item.Items" style="text-align:right;width:80px;">
+                                        <span :title="sitem.Count" :style="{color:(sitem.Value==item.Best?'lightseagreen':'#000')}">  {{sitem.Value}}</span>
+                                    </td>
+                                    <td v-if="item.Name" style="text-align:right;width:80px;">
+                                        {{item.Best}}
+                                    </td>
+                                    <td v-if="item.Name" style="text-align:right;width:80px;">
+                                        <span :style="{color:(item.Errors>0? 'read':'#808080')}"> {{item.Errors}}</span>
+                                    </td>
+                                    <td style="width:10px;">
 
-                                <td style="padding:2px;width:150px;border-color:#fff" :title="item.Message">
-                                    <a href="javascript:void(0)" @click="onSelectItem(item)"> {{item.Name}}</a>
-                                </td>
-                                <td style="padding:2px;border-color:#fff;text-align:right;width:100px;">
-
-                                    <span> {{item.Success}} |</span>
-
-
-                                </td>
-                                <td style="padding:2px;border-color:#fff">
-
-
-                                    <span>(avg:{{item.AvgRps}}  max:{{item.MaxRps}})</span>
-
-                                </td>
-                                <td style="padding:2px;text-align:right;width:100px;border-color:#fff"><span style="color:#ff6a00;"> {{item.Errors}}</span></td>
-                                <td style="padding:2px;width:100px;padding-right:4px;border-color:#fff">
-
-                                    <div class="bar-item1" :style="{width:item.TimePercent+'%'}">
-                                        <span style="margin-left:10px; margin-top:-2px;position:absolute;font-size:10pt;">{{item.Status}}</span>
-                                    </div>
-
-
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-                    <div v-if="!ShowItem" class="closeDiv">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
 
                     </div>
+                    <ul v-else id="mainResult" class="round-list">
+
+                        <li v-for="(item) in Rounds" class="round-table">
+                            <div class="round">
+                                <div class="round-title">
+                                    <span>Concurrent:</span> {{item.Concurrent}}<span> | Times:{{item.Seconds}} </span>({{item.Status}})
+                                    <div class="tool-bar" style="float:right;">
+                                        <a v-if="Info.Status !='Runing'" href="javascript:void(0)" @click="onDeleteItem(item)"><img style=" width:16px;" src="images/del.png" /></a>
+                                        <a v-if="item.Items.length>0 && item.Show" @click="item.Show=false" href="javascript:void(0)"><img style=" width:16px;" src="images/small.png" /></a>
+                                        <a v-if="item.Items.length>0 && !item.Show" @click="item.Show=true" href="javascript:void(0)"><img style=" width:16px;" src="images/large.png" /></a>
+                                    </div>
+                                </div>
+                                <div :id="item.ID" :style="{display:item.Show?'':'none'}">
+                                    <table class="table " style="margin-bottom:2px;">
+                                        <tbody style="cursor:pointer;font-size:10pt;">
+                                            <tr v-for="(sitem,i) in item.Items" v-if="item.ShowItems || i<3" :style="{backgroundColor:getBorderStyle(sitem,i)}">
+                                                <td style="width:18px;padding:0px;padding-left:4px;border-color:#fff" :title="sitem.Status">
+                                                    <img style="padding:0px;margin:0px;" v-if="sitem.Status=='Runing'" src="images/runing.gif" />
+                                                    <img style="padding:0px;margin:0px;" v-else :src="['images/'+sitem.Status+'.png']" />
+                                                </td>
+
+                                                <td style="padding:2px;width:150px;border-color:#fff" :title="sitem.Category">
+                                                    <a href="javascript:void(0)" @click="onSelectItem(item,sitem)"> {{sitem.Name}}</a>
+                                                </td>
+                                                <td style="padding:2px;border-color:#fff;text-align:right;width:100px;" @click="item.ShowItems=!item.ShowItems">
+                                                    <span> {{sitem.Success}} |</span>
+                                                </td>
+                                                <td style="padding:2px;border-color:#fff" @click="item.ShowItems=!item.ShowItems">
+                                                    <span>(avg:{{sitem.AvgRps}}  max:{{sitem.MaxRps}})</span>
+                                                </td>
+                                                <td style="padding:2px;text-align:right;width:100px;border-color:#fff" @click="item.ShowItems=!item.ShowItems">
+                                                    <span style="color:#ff6a00;" title="errors"> {{sitem.Errors}}</span>
+                                                </td>
+                                                <td style="padding:2px;width:100px;padding-right:4px;border-color:#fff">
+
+                                                    <div class="bar-item1" :style="{width:sitem.TimePercent+'%'}">
+                                                        <span style="margin-left:10px; margin-top:-2px;position:absolute;font-size:10pt;">{{sitem.Status}}</span>
+                                                    </div>
+
+
+                                                </td>
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                    <div class="more-bar" v-if="!item.ShowItems && item.Status !='None' && item.Items.length>3" @click="item.ShowItems=true">
+                                        <p style="position:absolute;width:100%;bottom:0px;padding:0px;margin:0px;">More...</p>
+                                    </div>
+                                    <table v-if="item.SelectItem && item.SelectItem.Name" class="table">
+                                        <caption style="color:#000">
+                                            <b>{{item.SelectItem.Name}} delay summary</b>
+                                            <div class="tool-bar" style="float:right;">
+
+                                                <a @click="item.SelectItem={}" href="javascript:void(0)"><img style=" width:16px;" src="images/small.png" /></a>
+
+                                            </div>
+                                        </caption>
+                                        <tbody style="font-size:10pt;">
+                                            <tr v-for="(d,k) in item.Latency">
+                                                <td style="padding:1px;width:120px;border-color:#efefef"> {{d.name}}</td>
+                                                <td style="padding:1px;width:100px;text-align:right;border-color:#efefef">{{d.value}}</td>
+                                                <td style="padding:1px;border-color:#efefef">
+                                                    <div class="bar-item2" :style="{width:d.percent}">
+
+                                                    </div>
+                                                </td>
+
+                                                <td style="padding:1px;width:80px;text-align:right;border-color:#efefef">({{d.percent}})</td>
+
+
+                                            </tr>
+
+
+                                        </tbody>
+                                    </table>
+
+                                    <table v-if="item.Report.length>0" class="table" style="margin-bottom:6px;cursor:pointer">
+
+                                        <thead>
+                                            <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
+                                                <th style="padding:0px;border:none;width:1px;"></th>
+                                                <th style="padding:0px;border:none;"></th>
+                                                <th style="text-align:right;padding:0px;border:none;">Total</th>
+                                                <th style="padding:0px;border:none;"></th>
+                                                <th style="padding:0px;border:none;"></th>
+                                                <th style="text-align:right;padding:0px;border:none;">RPS</th>
+                                                <th style="padding:0px;border:none;"> </th>
+                                                <th style="padding:0px;border:none;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody style="font-size:10pt;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:aliceblue;padding:1px;">
+                                            <tr v-for="(gitem,k) in item.Report">
+                                                <td style="width:1px;padding:1px;border-color:#efefef;text-align:right;"><span style="padding-right:2px;color:#808080"> {{k+1}}</span></td>
+                                                <td style="padding:1px;width:120px;border-color:#efefef" :title="gitem.Category"> {{gitem.Name}}</td>
+                                                <td style="padding:1px;width:100px;text-align:right;border-color:#efefef">{{gitem.Value}}</td>
+                                                <td style="padding:1px;border-color:#efefef">
+                                                    <div class="bar-itemrps" :style="{width:gitem.Percent+'%'}">
+
+                                                    </div>
+                                                </td>
+                                                <td style="padding:1px;width:80px;text-align:right;border-color:#efefef">({{gitem.Percent}}%)</td>
+
+
+                                                <td style="padding:1px;width:100px;text-align:right;border-color:#efefef">{{gitem.Rps.Value}}</td>
+                                                <td style="padding:1px;border-color:#efefef">
+                                                    <div class="bar-item" :style="{width:gitem.Rps.Percent+'%'}">
+
+                                                    </div>
+                                                </td>
+
+                                                <td style="padding:1px;width:80px;text-align:right;border-color:#efefef">({{gitem.Rps.Percent}}%)</td>
+                                            </tr>
+
+
+                                        </tbody>
+                                    </table>
+
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
-              
-                <table class="table" :style="{display:(ShowReport&&SelectItem.Name)?'':'none'}">
-                    <caption style="color:#000"><b> {{SelectItem.Name}} delay summary</b></caption>
-                    <tbody style="font-size:10pt;">
-                        <tr v-for="(item,i) in ItemSummary" :style="{backgroundColor:getBorderStyle(item,i)}">
-                            <td style="padding:2px;width:120px;border-color:#fff"> {{item.name}}</td>
-                            <td style="padding:2px;width:100px;text-align:right;border-color:#fff">{{item.value}}</td>
-                            <td style="padding:2px;border-color:#fff">
-                                <div class="bar-item2" :style="{width:item.percent}">
-
-                                </div>
-                            </td>
-
-                            <td style="padding:2px;width:80px;text-align:right;border-color:#fff">({{item.percent}})</td>
-
-
-                        </tr>
-
-
-                    </tbody>
-                </table>
 
 
 
-                <table v-for="(g,i) in ReportData" class="table" :style="{display:ShowReport?'':'none',marginBottom:'6px'}">
-                    
-                    <thead v-if="i==0">
-                        <tr style="border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:gainsboro;">
-                            <th style="padding:2px;border:none;"></th>
-                            <th style="padding:2px;border:none;"></th>
-                            <th style="text-align:right;padding:2px;border:none;">Total</th>
-                            <th style="padding:2px;border:none;"></th>
-                            <th style="padding:2px;border:none;"></th>
-                            <th style="text-align:right;padding:2px;border:none;">RPS</th>
-                            <th style="padding:2px;border:none;"> </th>
-                            <th style="padding:2px;border:none;"></th>
-                        </tr>
-                    </thead>
-                    <tbody style="font-size:10pt;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#ddd;padding:1px;">
-                        <tr v-for="(item,i) in g.Items">
-                            <td v-if="i==0" :rowspan="g.Items.length" :style="{width:'10px',verticalAlign:'middle',backgroundColor:getBorderStyle(item,i)}"></td>
-                            <td style="padding:2px;width:120px;"> {{item.Name}}</td>
-                            <td style="padding:2px;width:100px;text-align:right;">{{item.Value}}</td>
-                            <td style="padding:2px;">
-                                <div class="bar-itemrps" :style="{width:item.Percent+'%'}">
-
-                                </div>
-                            </td>
-                            <td style="padding:2px;width:80px;text-align:right;">({{item.Percent}}%)</td>
 
 
-                            <td style="padding:2px;width:100px;text-align:right;">{{item.Rps.Value}}</td>
-                            <td style="padding:2px;">
-                                <div class="bar-item" :style="{width:item.Rps.Percent+'%'}">
-
-                                </div>
-                            </td>
-
-                            <td style="padding:2px;width:80px;text-align:right;">({{item.Rps.Percent}}%)</td>
-                        </tr>
 
 
-                    </tbody>
-                </table>
+
 
 
 
@@ -223,17 +308,31 @@
             data: {
                 Examples: [],
                 Concurrent: 10,
-                Seconds: 20,
+                Seconds: 10,
                 Info: {},
                 Items: [],
                 Starting: false,
                 ShowReport: false,
-                ReportData: [],
+                Report: {},
+                SelectTab:'Test',
                 SelectItem: {},
                 ItemSummary: [],
-                ShowItem: true
+                ShowItem: true,
+                Clears: false,
+                Rounds: [],
+                RoundID: new Date().getTime()
             },
             methods: {
+                saveResult: function () {
+                   
+                },
+                onReport: function () {
+                    this.SelectTab = "Report";
+                    var _this = this;
+                    home.AllRpsReport().$(function (r) {
+                        _this.Report = r.Data;
+                    });
+                },
                 getBorderStyle: function (item, i) {
                     if (i % 2 == 1)
                         return "#FFFEF7";
@@ -290,35 +389,91 @@
                     var _this = this;
                     home.GetStatus().$(function (r) {
                         _this.Info = r.Data;
-                        _this.Items = r.Data.Items;
-                        if (r.Data.Status == 'Completed' || r.Data.Status == 'Stop') {
-                            //if (_this.Starting) {
-                            //    _this.Starting = false;
-                            _this.ShowReport = true;
-                            home.Report().$(function (r) {
-                                _this.ReportData = r.Data;
+                        if (_this.Rounds.length == 0 && _this.Info.Status != 'None' && _this.Clears == false) {
+
+                            home.GetAllStatus().$(function (d) {
+                                _this.Rounds = d.Data;
                             });
-                            //}
                         }
-                        else {
-                            _this.ShowReport = false;
+                        if (_this.Rounds.length > 0) {
+                            _this.Rounds.forEach(function (v) {
+                                if (v.ID == r.Data.ID) {
+                                    v.Items = r.Data.Items;
+                                }
+                            });
+                        }
+                        r.Data.AllStatus.forEach(function (s) {
+                            _this.Rounds.forEach(function (v) {
+                                if (s.ID == v.ID)
+                                    v.Status = s.Status;
+                            })
+                        });
+
+                    });
+                    this.Rounds.forEach(function (v) {
+                        if (v.Status == "Completed" || v.Status == "Stop") {
+                            var _item = v;
+
+                            if (v.Report == null || v.Report.length == 0) {
+
+                                home.GetRoundStatus(v.ID).$(function (r) {
+
+                                    _item.Report = r.Data.Report;
+                                    _item.Items = r.Data.Items;
+                                });
+                            }
                         }
                     });
                 },
-                onSelectItem: function (item) {
-                    this.SelectItem = item;
-                    if (this.Info.Status == 'Completed' || this.Info.Status == 'Stop') {
+                onDeleteItem: function (item) {
+                    if (confirm('Want to remove this use case?')) {
                         var _this = this;
-                        home.GetLatency(this.SelectItem.ID).$(function (r) {
+                        home.DelRoundCase(item.ID).$(function (r) {
+                            _this.Rounds = r.Data;
+                        });
+                    }
+                },
+                onClearCase: function () {
+                    if (confirm("Want to clear all concurrent test cases?")) {
+                        var _this = this;
+                        _this.Clears = true;
+                        _this.Info.Status = 'None';
+                        home.ClearRoundCase().$(function (r) {
+                            _this.Rounds = r.Data;
+                        });
 
-                            _this.ItemSummary = r.Data;
+                    }
+                },
+                onAddConcurrentCase: function () {
+                    for (i = 0; i < this.Rounds.length; i++) {
+                        if (this.Rounds[i].Concurrent == this.Concurrent) {
+                            alert(this.Concurrent+' concurrent cases already exist!');
+                            return;
+                        }
+                    }
+                    this.RoundID++;
+                    this.Rounds.push({ ID: '_' + this.RoundID, Concurrent: this.Concurrent, Seconds: this.Seconds, Status: 'None', Items: [], Report: [] });
+                    var _this = this;
+                    home.AddRoundCase('_' + this.RoundID, this.Concurrent, this.Seconds).$(function (r) {
+                        _this.Rounds = r.Data;
+                    });
+                },
+                onSelectItem: function (item, sitem) {
+                    this.SelectItem = item;
+                    if (item.Status == 'Completed' || item.Status == 'Stop') {
+                        var _this = this;
+                        item.SelectItem = sitem;
+                        home.GetLatency(item.ID, sitem.ID).$(function (r) {
+                            item.Latency = r.Data;
                         });
                     }
                 },
                 start: function () {
                     var items = this.selectExamples();
                     var _this = this;
+                    this.SelectTab = "Test";
                     this.ShowItem = true;
+                    this.Clears = false;
                     this.SelectItem = {};
                     this.ItemSummary = [];
                     this.ReportData = [];
@@ -327,7 +482,18 @@
                         alert('Select the examples to run!');
                         return;
                     }
-                    home.Run(this.Concurrent, this.Seconds, items).$(function (r) {
+                    if (this.Rounds.length == 0) {
+                        alert('Add concurrent test cases!');
+                        return;
+                    }
+                    var rounds = [];
+                    this.Rounds.forEach(function (v) {
+                        v.Status = 'None';
+                        v.Items = [];
+                        v.Report = [];
+                        rounds.push({ ID: v.ID, Concurrent: v.Concurrent, Seconds: v.Seconds })
+                    });
+                    home.Run(rounds, items).$(function (r) {
                         _this.Starting = true;
                         _this.ShowReport = false;
                     });
