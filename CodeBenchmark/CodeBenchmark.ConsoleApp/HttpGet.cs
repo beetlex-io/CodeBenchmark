@@ -9,8 +9,7 @@ namespace CodeBenchmark.ConsoleApp
     class HttpGet : IExample
     {
         public void Dispose()
-        {
-            
+        {          
         }
 
         public async Task Execute()
@@ -27,7 +26,6 @@ namespace CodeBenchmark.ConsoleApp
                 _httpHandler = _httpApi.Create<IHttpHandler>();
             }
         }
-
 
         static BeetleX.Http.Clients.HttpClusterApi _httpApi;
 

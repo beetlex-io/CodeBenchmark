@@ -138,17 +138,17 @@
                                     <td v-if="item.Name">
 
                                         <div class="bar-item" :style="{width:item.Percent+'%',padding:'2px;',display:'grid',textAlign:'right'}">
-                                            <span class="rps-value" style="margin-left:10px; margin-top:-2px;font-size:10pt;float:right;">{{item.Percent}}%</span>
+                                            <span class="rps-value">{{item.Percent}}%</span>
                                         </div>
                                     </td>
                                     <td v-for="sitem in item.Items" style="text-align:right;width:80px;">
-                                        <span :title="sitem.Count" :style="{color:(sitem.Value==item.Best?'lightseagreen':'#000')}">  {{sitem.Value}}</span>
+                                        <span :title="sitem.Count" :style="{color:(sitem.Value==item.Best?'lightseagreen':'#000')}">  {{new Intl.NumberFormat().format(sitem.Value)}}</span>
                                     </td>
                                     <td v-if="item.Name" style="text-align:right;width:80px;">
-                                        {{item.Best}}
+                                        {{new Intl.NumberFormat().format(item.Best)}}
                                     </td>
                                     <td v-if="item.Name" style="text-align:right;width:80px;">
-                                        <span :style="{color:(item.Errors>0? 'read':'#808080')}"> {{item.Errors}}</span>
+                                        <span :style="{color:(item.Errors>0? 'read':'#808080')}"> {{new Intl.NumberFormat().format(item.Errors)}}</span>
                                     </td>
                                     <td style="width:10px;">
 
@@ -163,7 +163,7 @@
                         <li v-for="(item) in Rounds" class="round-table">
                             <div class="round">
                                 <div class="round-title">
-                                    <span>Concurrent:</span> {{item.Concurrent}}<span> | Times:{{item.Seconds}} </span>({{item.Status}})
+                                    <a href="javascript:void(0)" @click="if(item.Items.length>0) item.Show=!item.Show">  <span>Concurrent:</span> {{item.Concurrent}}<span> | Times:{{item.Seconds}} </span>({{item.Status}})</a>
                                     <div class="tool-bar" style="float:right;">
                                         <a v-if="Info.Status !='Runing'" href="javascript:void(0)" @click="onDeleteItem(item)"><img style=" width:16px;" src="images/del.png" /></a>
                                         <a v-if="item.Items.length>0 && item.Show" @click="item.Show=false" href="javascript:void(0)"><img style=" width:16px;" src="images/small.png" /></a>
@@ -183,13 +183,16 @@
                                                     <a href="javascript:void(0)" @click="onSelectItem(item,sitem)"> {{sitem.Name}}</a>
                                                 </td>
                                                 <td style="padding:2px;border-color:#fff;text-align:right;width:100px;" @click="item.ShowItems=!item.ShowItems">
-                                                    <span> {{sitem.Success}} |</span>
+                                                    <span> {{new Intl.NumberFormat().format(sitem.Success)}} |</span>
+                                                </td>
+                                                <td style="padding:2px;border-color:#fff;text-align:right;width:80px;" @click="item.ShowItems=!item.ShowItems">
+                                                    <span>(avg:{{new Intl.NumberFormat().format(sitem.AvgRps)}}</span>
                                                 </td>
                                                 <td style="padding:2px;border-color:#fff" @click="item.ShowItems=!item.ShowItems">
-                                                    <span>(avg:{{sitem.AvgRps}}  max:{{sitem.MaxRps}})</span>
+                                                    <span>max:{{new Intl.NumberFormat().format(sitem.MaxRps)}})</span>
                                                 </td>
                                                 <td style="padding:2px;text-align:right;width:100px;border-color:#fff" @click="item.ShowItems=!item.ShowItems">
-                                                    <span style="color:#ff6a00;" title="errors"> {{sitem.Errors}}</span>
+                                                    <span style="color:#ff6a00;" title="errors"> {{new Intl.NumberFormat().format(sitem.Errors)}}</span>
                                                 </td>
                                                 <td style="padding:2px;width:100px;padding-right:4px;border-color:#fff">
 
@@ -218,14 +221,14 @@
                                         <tbody style="font-size:10pt;">
                                             <tr v-for="(d,k) in item.Latency">
                                                 <td style="padding:1px;width:120px;border-color:#efefef"> {{d.name}}</td>
-                                                <td style="padding:1px;width:100px;text-align:right;border-color:#efefef">{{d.value}}</td>
+                                                <td style="padding:1px;width:100px;text-align:right;border-color:#efefef">{{new Intl.NumberFormat().format(d.value)}}</td>
                                                 <td style="padding:1px;border-color:#efefef">
-                                                    <div class="bar-item2" :style="{width:d.percent}">
-
+                                                    <div class="bar-item2" :style="{width:d.percent,display:'grid',textAlign:'right'}">
+                                                        <span class="rps-value ">{{d.percent}}</span>
                                                     </div>
                                                 </td>
 
-                                                <td style="padding:1px;width:80px;text-align:right;border-color:#efefef">({{d.percent}})</td>
+                                              
 
 
                                             </tr>
@@ -242,33 +245,31 @@
                                                 <th style="padding:0px;border:none;"></th>
                                                 <th style="text-align:right;padding:0px;border:none;">Total</th>
                                                 <th style="padding:0px;border:none;"></th>
-                                                <th style="padding:0px;border:none;"></th>
                                                 <th style="text-align:right;padding:0px;border:none;">RPS</th>
                                                 <th style="padding:0px;border:none;"> </th>
-                                                <th style="padding:0px;border:none;"></th>
+                                                
                                             </tr>
                                         </thead>
                                         <tbody style="font-size:10pt;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:aliceblue;padding:1px;">
-                                            <tr v-for="(gitem,k) in item.Report">
-                                                <td style="width:1px;padding:1px;border-color:#efefef;text-align:right;"><span style="padding-right:2px;color:#808080"> {{k+1}}</span></td>
-                                                <td style="padding:1px;width:120px;border-color:#efefef" :title="gitem.Category"> {{gitem.Name}}</td>
-                                                <td style="padding:1px;width:100px;text-align:right;border-color:#efefef">{{gitem.Value}}</td>
-                                                <td style="padding:1px;border-color:#efefef">
-                                                    <div class="bar-itemrps" :style="{width:gitem.Percent+'%'}">
-
-                                                    </div>
-                                                </td>
-                                                <td style="padding:1px;width:80px;text-align:right;border-color:#efefef">({{gitem.Percent}}%)</td>
-
-
-                                                <td style="padding:1px;width:100px;text-align:right;border-color:#efefef">{{gitem.Rps.Value}}</td>
-                                                <td style="padding:1px;border-color:#efefef">
-                                                    <div class="bar-item" :style="{width:gitem.Rps.Percent+'%'}">
-
+                                            <tr v-for="(gitem,k) in item.Report" :style="{backgroundColor:getBorderStyle(gitem,k)}">
+                                                <td style="text-align:right;"><span style="padding-right:2px;color:#808080"> {{k+1}}</span></td>
+                                                <td style="width:120px;" :title="gitem.Category"> {{gitem.Name}}</td>
+                                                <td style="width:100px;text-align:right;">{{new Intl.NumberFormat().format(gitem.Value)}}</td>
+                                                <td style="">
+                                                    <div class="bar-itemrps" :style="{width:gitem.Percent+'%',display:'grid',textAlign:'right'}">
+                                                        <span class="rps-value ">{{gitem.Percent}}%</span>
                                                     </div>
                                                 </td>
 
-                                                <td style="padding:1px;width:80px;text-align:right;border-color:#efefef">({{gitem.Rps.Percent}}%)</td>
+
+                                                <td style="width:100px;text-align:right;">{{new Intl.NumberFormat().format(gitem.Rps.Value)}}</td>
+                                                <td style="">
+                                                    <div class="bar-item" :style="{width:gitem.Rps.Percent+'%',display:'grid',textAlign:'right'}">
+                                                        <span class="rps-value ">{{gitem.Rps.Percent}}%</span>
+                                                    </div>
+                                                </td>
+
+                                               
                                             </tr>
 
 

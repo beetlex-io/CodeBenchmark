@@ -10,7 +10,8 @@ namespace CodeBenchmark.ConsoleApp
             Benchmark benchmark = new Benchmark();
             benchmark.Register(typeof(Program).Assembly);
             benchmark.Start();
-            //benchmark.OpenWeb();
+            if(Environment.OSVersion.Platform== PlatformID.Win32NT)
+                benchmark.OpenWeb();
             Console.Read();
         }
     }
